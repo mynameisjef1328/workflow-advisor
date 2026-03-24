@@ -762,8 +762,13 @@ async function sendMessage() {
     const data = await response.json();
     removeThinking();
 
+    // Log full response for debugging
+    console.log('API STATUS:', response.status);
+    console.log('API RESPONSE:', JSON.stringify(data));
+    
+    if (data.error) throw new Error('API Error: ' + data.error.message + ' (type: ' + data.error.type + ')');
     const raw = data.content?.map(b => b.text || '').join('');
-    if (!raw) throw new Error('Empty response from API');
+    if (!raw) throw new Error('Empty response. Status: ' + response.status + ' Data: ' + JSON.stringify(data).substring(0, 200));
 
     // Extract JSON object robustly — find first { to last }
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
