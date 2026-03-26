@@ -536,10 +536,6 @@
   <div class="header-badge">✦ Powered by AI</div>
 </header>
 
-<div style="display:none">
-  <input type="password" id="apiKeyInput" value="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" />
-</div>
-
 <div class="main">
   <aside class="sidebar">
     <div class="sidebar-section">
@@ -827,18 +823,6 @@ If the request IS possible, respond with the normal workflow JSON and include "p
 
 let conversationHistory = [];
 
-function updateKeyStatus() {
-  const key = document.getElementById('apiKeyInput').value.trim();
-  const status = document.getElementById('keyStatus');
-  if (key.startsWith('sk-ant-') && key.length > 20) {
-    status.textContent = 'Key set ✓';
-    status.className = 'key-status set';
-  } else {
-    status.textContent = 'Not set';
-    status.className = 'key-status unset';
-  }
-}
-
 function useExample(el) {
   document.getElementById('userInput').value = el.textContent.trim();
   autoResize(document.getElementById('userInput'));
@@ -1056,13 +1040,8 @@ function renderError(msg) {
 async function sendMessage() {
   const input = document.getElementById('userInput');
   const btn = document.getElementById('sendBtn');
-  const apiKey = document.getElementById('apiKeyInput').value.trim();
   const text = input.value.trim();
   if (!text) return;
-  if (!apiKey) {
-    renderError('Please enter your Anthropic API key at the top before sending.');
-    return;
-  }
 
   input.value = '';
   input.style.height = 'auto';
@@ -1074,9 +1053,9 @@ async function sendMessage() {
   const thinkingEl = appendThinking();
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/api/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
         max_tokens: 1000,
