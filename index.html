@@ -420,6 +420,109 @@
   /* Fade in */
   .fade-in { animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  /* Collapsible Definitions */
+  .definitions-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; user-select: none;
+  }
+  .definitions-toggle h3 { margin-bottom: 0; }
+  .chevron { font-size: 10px; color: var(--muted); transition: transform 0.2s; display: inline-block; }
+  .chevron.open { transform: rotate(180deg); }
+  .definitions-body {
+    font-size: 11.5px; color: var(--text2); line-height: 1.6;
+    max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+  }
+  .definitions-body.open { max-height: 700px; }
+  .def-item { margin-bottom: 8px; }
+  .def-item strong {
+    color: var(--blue); font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.5px; display: block; margin-bottom: 2px; font-weight: 700;
+  }
+
+  /* Did You Know */
+  .did-you-know {
+    background: var(--blue-light);
+    border: 1px solid var(--blue-mid);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px; color: var(--text2); line-height: 1.6;
+  }
+  .did-you-know .dyk-label {
+    display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+    text-transform: uppercase; color: var(--blue); margin-bottom: 6px;
+  }
+  .tip-text { display: block; min-height: 48px; }
+
+  /* Need Help link */
+  .need-help-link {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 12px; font-weight: 500; color: var(--blue);
+    text-decoration: none; padding: 8px 10px;
+    border: 1px solid var(--blue-mid);
+    border-radius: 8px; background: var(--surface2);
+    transition: all 0.15s;
+  }
+  .need-help-link:hover { background: var(--blue-light); border-color: var(--blue); }
+
+  /* Feedback bar */
+  .feedback-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 18px 14px;
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--muted);
+  }
+  .feedback-btn {
+    background: none; border: 1px solid var(--border2);
+    border-radius: 6px; padding: 3px 10px;
+    cursor: pointer; font-size: 15px;
+    transition: all 0.15s; color: var(--text2); line-height: 1.6;
+  }
+  .feedback-btn:hover { border-color: var(--blue); background: var(--blue-light); }
+  .feedback-btn.selected.up { border-color: var(--green); background: var(--green-bg); }
+  .feedback-btn.selected.down { border-color: var(--red); background: var(--red-bg); }
+  .feedback-thanks { font-size: 12px; color: var(--green); display: none; }
+
+  /* Start Over button */
+  button.start-over-btn {
+    background: none;
+    border: 1.5px solid var(--border2);
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 0 14px;
+    height: 46px;
+    font-size: 12px; font-weight: 500; color: var(--text2);
+    transition: all 0.15s; flex-shrink: 0;
+    white-space: nowrap;
+  }
+  button.start-over-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+
+  /* AI Disclaimer */
+  .ai-disclaimer {
+    font-size: 11px; color: var(--muted); text-align: center;
+    padding: 6px 16px 0; line-height: 1.5; font-style: italic;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .main { flex-direction: column; height: auto; overflow: visible; }
+    .sidebar {
+      width: 100%; min-width: unset;
+      border-right: none; border-bottom: 1px solid var(--border);
+      height: auto; overflow: visible; padding: 12px 16px;
+      gap: 14px;
+    }
+    .chat-area { display: flex; flex-direction: column; flex: 1; }
+    .messages { flex: 1; min-height: 300px; overflow-y: auto; }
+    header { padding: 0 16px; }
+    .header-badge { display: none; }
+    .input-area { padding: 12px 16px 16px; }
+    .msg-content { max-width: 100% !important; }
+    .workflow-card { max-width: 100%; }
+    .not-possible-card { max-width: 100%; }
+    .input-row { flex-wrap: wrap; gap: 8px; }
+    .start-over-btn { width: 100%; justify-content: center; }
+  }
+
 </style>
 </head>
 <body>
@@ -460,6 +563,33 @@
       <div class="legend-item"><div class="legend-dot condition"></div> Condition</div>
       <div class="legend-item"><div class="legend-dot action"></div> Action</div>
     </div>
+    <div class="sidebar-section">
+      <div class="definitions-toggle" onclick="toggleDefinitions()" id="defsToggle">
+        <h3>Definitions</h3>
+        <span class="chevron" id="defsChevron">▼</span>
+      </div>
+      <div class="definitions-body" id="defsBody">
+        <div style="height:6px"></div>
+        <div class="def-item"><strong>Trigger</strong>The event that starts the workflow (e.g. Meld Created, Invoice Submitted)</div>
+        <div class="def-item"><strong>Condition</strong>A filter that must be true for the workflow to continue (e.g. Priority is High)</div>
+        <div class="def-item"><strong>Action</strong>What the workflow does (e.g. Send Message, Assign Meld, Add Tags)</div>
+        <div class="def-item"><strong>Delay</strong>Pauses the workflow for a set time before the next action fires</div>
+        <div class="def-item"><strong>AND</strong>All conditions in a block must be true</div>
+        <div class="def-item"><strong>OR</strong>Either condition block can trigger the action independently</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <h3>Did You Know?</h3>
+      <div class="did-you-know">
+        <span class="dyk-label">💡 Tip</span>
+        <span class="tip-text" id="tipText">Loading tip…</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <a class="need-help-link" href="#" onclick="alert('Contact your Property Meld support team for help with workflows.'); return false;">
+        ❓ Need Help?
+      </a>
+    </div>
   </aside>
 
   <div class="chat-area">
@@ -475,8 +605,10 @@
         <textarea id="userInput" placeholder="e.g. Send a message when a high priority meld is created by a tenant…" rows="1"
           onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
         <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+        <button class="start-over-btn" onclick="startOver()" title="Clear conversation and start fresh">↺ Start Over</button>
       </div>
       <div class="input-hint">Press Enter to send · Shift+Enter for new line · Be specific about what triggers the workflow and what should happen</div>
+      <div class="ai-disclaimer">AI suggestions may not always be perfect. Always review your workflow before activating it in Property Meld.</div>
     </div>
   </div>
 </div>
@@ -865,6 +997,12 @@ function renderWorkflow(data) {
           ${actionsHtml}
         </div>
         ${data.explanation ? `<div class="explanation"><strong>How it works:</strong> ${escapeHtml(data.explanation)}</div>` : ''}
+        <div class="feedback-bar">
+          <span>Was this helpful?</span>
+          <button class="feedback-btn up" onclick="submitFeedback(this)">👍</button>
+          <button class="feedback-btn down" onclick="submitFeedback(this)">👎</button>
+          <span class="feedback-thanks" id="">Thanks for your feedback!</span>
+        </div>
       </div>
     </div>
   `;
@@ -979,6 +1117,70 @@ async function sendMessage() {
   btn.disabled = false;
   input.focus();
 }
+const DID_YOU_KNOW_TIPS = [
+  "You can chain multiple actions in a single workflow — no need to create separate workflows for each step.",
+  "Use Delay + Assign Meld to automatically reassign a meld if it hasn't been scheduled within a set time.",
+  "The 'In Recurring Range' condition lets you trigger workflows only during business hours or after hours.",
+  "OR condition blocks let you handle multiple scenarios (e.g. high priority OR emergency) in one workflow.",
+  "Send Message From Template can notify residents, owners, or vendors — all from the same workflow.",
+  "Add Tags is great for flagging melds for follow-up without changing their status.",
+  "Workflows with a Delay action are powerful for escalation logic — assign, wait, then reassign if needed.",
+  "You can add watchers to a meld automatically when it meets certain conditions.",
+  "Use 'Meld Tenant Rating Submitted' as a trigger to react to poor reviews automatically."
+];
+
+let tipIndex = 0;
+function rotateTip() {
+  const el = document.getElementById('tipText');
+  if (!el) return;
+  el.textContent = DID_YOU_KNOW_TIPS[tipIndex % DID_YOU_KNOW_TIPS.length];
+  tipIndex++;
+  setTimeout(rotateTip, 8000);
+}
+
+function toggleDefinitions() {
+  const body = document.getElementById('defsBody');
+  const chevron = document.getElementById('defsChevron');
+  if (body && chevron) {
+    body.classList.toggle('open');
+    chevron.classList.toggle('open');
+  }
+}
+
+function submitFeedback(btn) {
+  const bar = btn.closest('.feedback-bar');
+  if (!bar) return;
+  bar.querySelectorAll('.feedback-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const thanks = bar.querySelector('.feedback-thanks');
+  if (thanks) thanks.style.display = 'inline';
+}
+
+function startOver() {
+  const messages = document.getElementById('messages');
+  const welcome = document.getElementById('welcome');
+  if (messages) {
+    // Remove all messages except the welcome screen
+    while (messages.lastChild && messages.lastChild !== welcome) {
+      messages.removeChild(messages.lastChild);
+    }
+    if (welcome) welcome.style.display = '';
+  }
+  const input = document.getElementById('userInput');
+  if (input) {
+    input.value = '';
+    autoResize(input);
+    input.focus();
+  }
+  conversationHistory = [];
+}
+
+// Start rotating tips on load
+document.addEventListener('DOMContentLoaded', function() {
+  tipIndex = Math.floor(Math.random() * DID_YOU_KNOW_TIPS.length);
+  rotateTip();
+});
+
 </script>
 </body>
 </html>
