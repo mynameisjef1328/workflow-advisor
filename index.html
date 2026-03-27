@@ -662,7 +662,7 @@ AVAILABLE CONDITIONS (with behavioral notes):
 - Meld Priority — priority level of the meld
 - Meld Status — current status of the meld
 - Meld Tenant Presence Required — boolean; whether tenant presence is required
-- Meld Tenant Rating — rating submitted by tenant
+- Meld Tenant Rating — rating submitted by tenant; valid values are: 1 star, 2 stars, 3 stars, 4 stars, 5 stars
 - Meld Tenant Review — review text submitted by tenant
 - Meld Creator Type — who created the meld (Tenant or Internal)
 - Meld Tag — tags applied to the meld (customer-defined)
@@ -764,7 +764,17 @@ CONDITION OPERATOR LOGIC:
 - OR = creates a separate condition block (either block can trigger the action)
 
 AVAILABLE ACTIONS:
-Add Tags (select from customer tags), Assign Meld (select maintenance person), Assign Coordinator (select coordinator), Delay (number + Hours or Days), Remove Tags (select from customer tags), Send Message From Template (select template), Unassign Meld (no sub-selection), Update Meld (select field: Priority / Due Date / Work Category / Work Location), Add Watchers (select users), Remove Watchers (select users)
+Add Tags (select from customer tags), Assign Meld (select maintenance person), Assign Coordinator (select coordinator), Delay (number + Hours or Days), Remove Tags (select from customer tags), Send Message From Template (select template + optional sender such as "Customer Success"), Unassign Meld (no sub-selection), Update Meld (select field: Priority / Due Date / Work Category / Work Location), Add Watchers (select users), Remove Watchers (select users)
+
+OPTIONAL CONDITIONS — UNCONDITIONAL BLOCKS:
+A workflow block can have no condition selected ("Select an Optional Condition"). This means the action block fires unconditionally for every meld matching the trigger, regardless of any other conditions. Use this pattern when one action in a multi-block workflow should always fire (e.g. always notify the vendor regardless of rating, while another block only notifies the resident if rating was 5 stars).
+
+REAL WORKFLOW EXAMPLE — MULTI-BLOCK WITH MIXED CONDITIONS:
+Workflow: "Resident & Vendor - Send a followup if a Meld was rated as 5 stars"
+Trigger: Tenant Rating Submitted
+Block 1 (conditional): Condition: Meld Tenant Rating · Any Of · 5 stars → Action: Send Message From Template (Resident follow-up template, sent from Customer Success)
+Block 2 (unconditional): No condition → Action: Send Message From Template (Vendor 5-star notification, sent from Customer Success)
+Key insight: Block 2 fires for ALL ratings since it has no condition — useful when the vendor should always be notified but the resident only gets a message for top ratings.
 
 MULTIPLE ACTIONS — CHAINING BLOCKS:
 A single workflow can have multiple action blocks that execute in sequence. Always prefer chaining actions within one workflow over suggesting multiple separate workflows. Examples:
