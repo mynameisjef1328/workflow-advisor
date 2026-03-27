@@ -464,6 +464,28 @@
   }
   .need-help-link:hover { background: var(--blue-light); border-color: var(--blue); }
 
+  /* Need Help modal */
+  .help-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 1000;
+    align-items: center; justify-content: center;
+  }
+  .help-modal-overlay.open { display: flex; }
+  .help-modal {
+    background: #fff; border-radius: 12px; padding: 28px 32px;
+    max-width: 380px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    font-size: 14px; line-height: 1.6; color: #333;
+  }
+  .help-modal p { margin: 0 0 20px; }
+  .help-modal a { color: var(--blue); }
+  .help-modal-close {
+    display: block; margin: 0 auto;
+    padding: 8px 24px; background: var(--blue);
+    color: #fff; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .help-modal-close:hover { opacity: 0.85; }
+
   /* Feedback bar */
   .feedback-bar {
     display: flex; align-items: center; gap: 8px;
@@ -582,7 +604,7 @@
       </div>
     </div>
     <div class="sidebar-section">
-      <a class="need-help-link" href="#" onclick="alert('Contact your Property Meld support team for help with workflows.'); return false;">
+      <a class="need-help-link" href="#" onclick="document.getElementById('helpModal').classList.add('open'); return false;">
         ❓ Need Help?
       </a>
     </div>
@@ -1161,5 +1183,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 </script>
+<div class="help-modal-overlay" id="helpModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="help-modal">
+    <p>If you need additional assistance with your workflows, please contact the <a href="mailto:support@propertymeld.com">Property Meld Support team</a>.</p>
+    <button class="help-modal-close" onclick="document.getElementById('helpModal').classList.remove('open')">OK</button>
+  </div>
+</div>
 </body>
 </html>
