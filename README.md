@@ -7,7 +7,7 @@ goal — always review before activating.
 
 ## What It Does
 Users describe a workflow goal in plain language and the 
-Advisor maps it to the correct Property Meld components — 
+Advisor recommends the appropriate Property Meld components — 
 trigger, conditions, and action — ready to build in the app.
 
 ## How It's Built
