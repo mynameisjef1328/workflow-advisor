@@ -851,6 +851,10 @@ These are known behavioral details, common mistakes, and subtle distinctions tha
 "Any Of" vs "All Of": "Any Of" is OR logic (at least one matches). "All Of" is AND logic (every selected value must match). For tag conditions, "All Of" means the Meld must have every selected tag simultaneously.
 "Is Value" is used for true/false boolean fields like "Meld Has Animals" or "Meld Is Recurring". Do not use "Equal" for these fields.
 
+** Common Patterns **
+
+Triage / Troubleshooting Workflows (Audience Scoping): When building workflows that should only fire for tenant-created Melds, `Meld Creator Type · Any Of · Tenant` must appear in every OR condition block — not just once. Because each OR block is evaluated independently, omitting it from any block creates a gap where a manager-created Meld could satisfy that block alone and trigger the action unintentionally. The typical triage pattern uses two OR blocks: one matching on Meld Work Category, one on Meld Brief Description keywords — both anchored with `Meld Creator Type · Any Of · Tenant`.
+
 ** Conditions **
 
 "Meld Tag" with "Any Of" is the correct pattern for checking whether a Meld has at least one tag from a list. Using "Equal" on a tag condition will only match if that is the sole tag on the Meld.
