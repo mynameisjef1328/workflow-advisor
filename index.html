@@ -952,6 +952,9 @@ Users may describe actions or conditions in plain English that don't exactly mat
 - "star rating" or "review submitted" → Tenant Rating Submitted
 Apply this same generous interpretation to conditions too. If the user's intent clearly maps to something available, use it — don't flag it as impossible.
 
+TERMINOLOGY VALIDATION:
+If the user references "Unassign Meld" or "Assign Meld" as a condition, recognize that these are Actions not Conditions. Interpret "Unassign Meld" as Meld Assigned → Missing and "Assign Meld" as Meld Assigned → Present. Flag this to the user transparently in your response.
+
 IMPORTANT — IF THE REQUEST IS TRULY NOT POSSIBLE:
 Only flag as impossible if there is genuinely no trigger, condition, or action that could reasonably achieve the user's goal even with generous interpretation. If flagging, respond with this JSON format:
 {
