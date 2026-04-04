@@ -21,3 +21,8 @@ Read these skill files in this order before doing anything:
 - 11 Triggers
 - 63 Conditions
 - 9 Actions
+
+## [CLARIFY] Format Note
+The Advisor uses a `[CLARIFY]...[/CLARIFY]` structured output format for medium-confidence clarifying questions. Any changes to this format must be updated in BOTH:
+1. `index.html` — the frontend JavaScript that parses and renders the buttons
+2. `skills/formatting.md` — the documentation of the format
