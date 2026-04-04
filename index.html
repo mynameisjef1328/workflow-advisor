@@ -157,6 +157,7 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    background: #EEF2F7;
   }
   .messages::-webkit-scrollbar { width: 5px; }
   .messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
@@ -175,7 +176,7 @@
   .welcome p { color: var(--muted); font-size: 14px; max-width: 420px; line-height: 1.7; }
 
   /* Messages */
-  .msg { display: flex; gap: 12px; align-items: flex-start; max-width: 860px; }
+  .msg { display: flex; gap: 12px; align-items: flex-start; max-width: 860px; animation: bubbleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .msg.user { flex-direction: row-reverse; align-self: flex-end; }
   .msg-avatar {
     width: 32px; height: 32px; border-radius: 50%;
@@ -194,21 +195,66 @@
   .msg.assistant .msg-avatar img { width: 32px; height: 32px; object-fit: contain; mix-blend-mode: multiply; }
   .msg-content { flex: 1; }
   .msg.user .msg-content {
-    background: var(--blue);
+    background: #2B7DE9;
     color: white;
-    border-radius: 16px 4px 16px 16px;
+    border-radius: 18px 18px 4px 18px;
     padding: 12px 16px;
     font-size: 14px;
     line-height: 1.6;
-    max-width: 500px;
-    box-shadow: var(--shadow-sm);
+    max-width: 75%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  .msg.assistant .msg-content {
+    background: #FFFFFF;
+    color: #1a2b3c;
+    border-radius: 18px 18px 18px 4px;
+    padding: 12px 16px;
+    max-width: 75%;
+    border: 1px solid rgba(0,0,0,0.04);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  @keyframes bubbleIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-time {
+    font-size: 10px; color: var(--muted);
+    margin-top: 4px; text-align: right;
+  }
+  .msg.assistant .msg-time { text-align: left; }
+
+  .clarify-options {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 12px;
+  }
+  .clarify-btn {
+    background: #E8F1FC;
+    color: #1A5BB5;
+    border: 1.5px solid rgba(43,125,233,0.25);
+    border-radius: 12px;
+    padding: 9px 14px;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .clarify-btn:hover {
+    background: #d6e8fb;
+    border-color: #2B7DE9;
+  }
+  .clarify-btn.selected {
+    background: #2B7DE9;
+    color: white;
+    border-color: #2B7DE9;
   }
 
   /* Workflow card */
   .workflow-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
+    background: #F8FAFD;
+    border: 1px solid #E0E6EE;
+    border-radius: 10px;
     overflow: hidden;
     box-shadow: var(--shadow);
   }
