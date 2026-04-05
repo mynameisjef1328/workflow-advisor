@@ -831,6 +831,7 @@ Triage / Troubleshooting Workflows (Audience Scoping): When building workflows t
 "Meld Status" conditions are evaluated at the moment the trigger fires, not retrospectively. If a workflow uses "Meld Updated" as the trigger and "Meld Status Equal Completed" as a condition, it will only fire if the status was just set to Completed in that update.
 "Meld Created" (the condition) refers to the creation date/timestamp, not the trigger event. It can be used with time-relative operators to filter Melds by age.
 Chat conditions (Last Tenant Meld Chat Message, etc.) reflect the most recent message at the time of trigger evaluation. They do not iterate over all messages.
+"Work Category Fallback": When a workflow targets a specific work category (e.g., HVAC, Plumbing, Electrical), suggest an additional condition block using OR logic with "Meld Brief Description" containing relevant keywords as a fallback. For example, an HVAC workflow should have Block 1: "Meld Work Category" Any Of "HVAC" — OR — Block 2: "Meld Brief Description" Contains Any Of "furnace, AC, air conditioning, heat, HVAC, thermostat". This catches melds where the resident selects the wrong category or skips it entirely.
 
 ** Actions **
 
