@@ -29,6 +29,17 @@
 - Meld Unassigned + Assigned Vendor condition =
   logically contradictory
 
+## Work Category Fallback Pattern
+
+When a user's goal involves filtering by a specific work category, the Advisor should suggest a secondary condition block connected via OR logic using "Meld Brief Description" with relevant keywords. This is because residents frequently select the wrong category or leave it blank.
+
+Example for HVAC:
+- Block 1: Meld Work Category · Any Of · HVAC
+- OR
+- Block 2: Meld Brief Description · Contains Any Of · furnace, AC, air conditioning, heat, HVAC, thermostat
+
+The Advisor should tailor the keyword list to the specific category being targeted and mention to the user why this fallback is recommended.
+
 ## Clarifying Question Triggers
 
 These ambiguity patterns should prompt a [CLARIFY] question (MEDIUM CONFIDENCE):
