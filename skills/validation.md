@@ -2,6 +2,12 @@
 
 ## Common Terminology Confusions
 
+- **Tenant vs. Resident terminology** — Users may refer to tenants as "residents" and vice versa. These terms are interchangeable in Property Meld.
+  - **Why this matters:** Property Meld uses "Tenant" in its system fields (e.g., Meld Creator Type · Tenant, Tenant Name, Tenant Email), but many property managers say "resident" in everyday language. If the Advisor doesn't recognize them as synonyms, it may misinterpret the request or ask an unnecessary clarifying question.
+  - **Suggested clarifying question:** None — do not ask. Silently interpret "resident" as "tenant" and proceed. This is a HIGH CONFIDENCE synonym, not an ambiguity.
+  - **If the user says "resident":** Map to the corresponding Tenant field (e.g., "send a message to the resident" → Send Message to Tenant).
+  - **If the user says "tenant":** Use directly as-is.
+
 - "Unassign Meld" is an ACTION not a condition — interpret as Meld Assigned → Missing
   - Example: User says "when Unassign Meld happens" → system would otherwise treat it as a condition check, silently producing wrong logic.
 - "Assign Meld" is an ACTION — interpret as Meld Assigned → Present
