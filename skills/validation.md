@@ -73,3 +73,10 @@ These ambiguity patterns should prompt a [CLARIFY] question (MEDIUM CONFIDENCE):
   - Assign Meld (technician or vendor)
   - Assign Coordinator
   Ask: Should this assign a maintenance technician or vendor, or a coordinator?
+
+- **When a workflow request involves the **Send Message From Template** action triggered by **Meld Created** or **Meld Created or Updated**, ask whether the condition **Meld Creator Type = Tenant** should be applied.
+
+- **Why this matters:** Triage melds ask tenants to perform minor troubleshooting before a work order proceeds. If the workflow sends a message on meld creation without filtering by creator type, it will also fire on melds created internally by staff — where the triage message doesn't apply.
+- **Suggested clarifying question:** "Should this message only go out when the meld is created by a tenant? A lot of teams add this condition because of triage melds — without it, the message also fires on melds created by staff."
+- **If yes:** Add condition → Meld Creator Type · Any Of · Tenant
+- **If no:** Proceed without the condition, but note that the workflow will fire for all creator types
