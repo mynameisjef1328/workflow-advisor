@@ -511,6 +511,34 @@
   }
   .need-help-link:hover { background: var(--blue-light); border-color: var(--blue); }
 
+  /* Workflows Suggested counter */
+  .workflows-counter {
+    text-align: center;
+    padding-top: 14px;
+  }
+  .workflows-counter-number {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--blue);
+    line-height: 1.1;
+  }
+  .workflows-counter-number.bump {
+    animation: counterBump 0.3s ease;
+  }
+  @keyframes counterBump {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.28); }
+    100% { transform: scale(1); }
+  }
+  .workflows-counter-label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 3px;
+  }
+
   /* Need Help modal */
   .help-modal-overlay {
     display: none; position: fixed; inset: 0;
@@ -654,6 +682,10 @@
       <a class="need-help-link" href="#" onclick="document.getElementById('helpModal').classList.add('open'); return false;">
         Need Help?
       </a>
+    </div>
+    <div class="workflows-counter">
+      <span class="workflows-counter-number" id="workflowsCounterNumber">0</span>
+      <span class="workflows-counter-label">Workflows Suggested</span>
     </div>
   </aside>
 
@@ -1388,6 +1420,7 @@ async function _callApi() {
           renderNotPossible(parsed);
         } else {
           renderWorkflow(parsed);
+          incrementWorkflowCounter();
         }
       } catch (parseErr) {
         // JSON parse failed — render as plain text
@@ -1485,6 +1518,24 @@ function startOver() {
 document.addEventListener('DOMContentLoaded', function() {
   tipIndex = Math.floor(Math.random() * DID_YOU_KNOW_TIPS.length);
   rotateTip();
+});
+
+function incrementWorkflowCounter() {
+  const next = (parseInt(localStorage.getItem('workflowsCount') || '0', 10)) + 1;
+  localStorage.setItem('workflowsCount', next);
+  const el = document.getElementById('workflowsCounterNumber');
+  if (el) {
+    el.textContent = next;
+    el.classList.remove('bump');
+    void el.offsetWidth; // force reflow to restart animation
+    el.classList.add('bump');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const storedCount = parseInt(localStorage.getItem('workflowsCount') || '0', 10);
+  const counterEl = document.getElementById('workflowsCounterNumber');
+  if (counterEl) counterEl.textContent = storedCount;
 });
 
 </script>
