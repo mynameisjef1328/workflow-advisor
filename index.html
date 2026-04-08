@@ -620,6 +620,27 @@
     .start-over-btn { width: 100%; justify-content: center; }
   }
 
+  /* TESTING MODE — remove before publishing */
+  #testing-mode-indicator {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    background: rgba(100, 40, 160, 0.88);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    z-index: 9999;
+    letter-spacing: 0.03em;
+    pointer-events: none;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  #testing-mode-indicator.visible { opacity: 1; }
+  /* TESTING MODE END */
+
 </style>
 </head>
 <body>
@@ -1023,6 +1044,65 @@ Only flag as impossible if there is genuinely no trigger, condition, or action t
 
 If the request IS possible, respond with the normal workflow JSON and include "possible": true in the root of the object.`;
 
+// TESTING MODE — remove before publishing
+const TESTING_SYSTEM_PROMPT = `
+
+=== TESTING MODE ACTIVE ===
+
+You are in testing mode. In addition to your normal Advisor behavior, you have a secondary role: when the tester corrects one of your recommendations, you will help generate a structured validation update.
+
+CORRECTION RECOGNITION:
+When the tester indicates your recommendation is wrong — using phrases like "that's wrong", "incorrect", "not right", "actually it should be", "the correct answer is", "no, the trigger should be", or similar correction language — do the following:
+
+1. Acknowledge the correction naturally (e.g., "Good catch — thanks for the correction.")
+
+2. Generate a NUANCE RECOMMENDATION formatted exactly as shown below. Present it in the chat for the tester to review:
+
+---
+**📋 Proposed Validation Update**
+
+**Section:** [Choose the most appropriate section from: Common Terminology Confusions | Infinite Loop Risks | Trigger + Condition Compatibility | Invalid Combinations | Clarifying Question Triggers | Work Category Fallback Patterns | NEW SECTION: (suggest name)]
+
+**Rule to add to validation.md:**
+\`\`\`
+- [Formatted rule following the existing validation.md conventions — use dash at first level, indented dashes for sub-items like "Why this matters", "Example", etc.]
+\`\`\`
+
+**Lean rule for index.html system prompt:**
+\`\`\`
+[Condensed, behavioral version of the same rule — 1-3 lines max, action-oriented, no examples]
+\`\`\`
+
+**Suggested commit message:**
+"Add [brief description] validation rule"
+
+---
+
+3. After presenting the recommendation, ask: "Would you like to approve this update, or should I adjust something?"
+
+4. If the tester says "approved", "yes", "looks good", "ship it", "send it", or similar approval language, respond with:
+   "✅ Submitting PR now..." and then output a special tag that the frontend will parse:
+   [PR_APPROVED]
+   {"validation_md_section": "...", "validation_md_rule": "...", "index_html_rule": "...", "commit_message": "..."}
+   [/PR_APPROVED]
+
+5. If the tester asks for adjustments, revise the recommendation and present it again for review.
+
+6. If the tester says "reject", "no", "skip", or "never mind", acknowledge and move on: "No problem — skipping that one. What would you like to test next?"
+
+FORMATTING RULES FOR GENERATED NUANCES:
+- validation.md entries must match the existing format exactly:
+  - Dash with text at first level
+  - Indented dashes for sub-items
+  - Bold short titles for Clarifying Question Triggers entries
+  - "Why this matters", "Suggested clarifying question", "If yes", "If no" sub-items where applicable
+- index.html rules should be lean and behavioral — no examples, no verbose explanations
+- Never suggest adding a rule that duplicates something already in the system prompt
+- When the correction reveals a completely new category of issue, suggest a NEW SECTION name
+
+IMPORTANT: Continue to function as the normal Workflow Advisor between corrections. Testing mode adds capability — it doesn't change your core advisory behavior.`;
+// TESTING MODE END
+
 let conversationHistory = [];
 
 function useExample(el) {
@@ -1362,7 +1442,7 @@ async function _callApi() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
         max_tokens: 1000,
-        system: SYSTEM_PROMPT,
+        system: SYSTEM_PROMPT + (window.TESTING_MODE ? TESTING_SYSTEM_PROMPT : ''),
         messages: conversationHistory
       })
     });
@@ -1387,6 +1467,25 @@ async function _callApi() {
     if (!raw) throw new Error('Empty response. Status: ' + response.status + ' Data: ' + JSON.stringify(data).substring(0, 200));
 
     conversationHistory.push({ role: 'assistant', content: raw });
+
+    // TESTING MODE — remove before publishing
+    if (window.TESTING_MODE && raw.includes('[PR_APPROVED]')) {
+      const displayText = raw.replace(/\[PR_APPROVED\][\s\S]*?\[\/PR_APPROVED\]/, '').trim();
+      if (displayText) renderAdvisorMessage(displayText);
+      const prMatch = raw.match(/\[PR_APPROVED\]([\s\S]*?)\[\/PR_APPROVED\]/);
+      if (prMatch) {
+        try {
+          await createTestingPR(JSON.parse(prMatch[1].trim()));
+        } catch (parseErr) {
+          renderAdvisorMessage('\u26a0\ufe0f Could not parse PR payload: ' + escapeHtml(parseErr.message));
+        }
+      }
+      if (btn) btn.disabled = false;
+      const inputEl = document.getElementById('userInput');
+      if (inputEl) inputEl.focus();
+      return;
+    }
+    // TESTING MODE END
 
     // Check for clarify block first
     if (raw.includes('[CLARIFY]')) {
@@ -1524,6 +1623,148 @@ document.addEventListener('DOMContentLoaded', function() {
   if (counterEl) counterEl.textContent = storedCount;
 });
 
+// TESTING MODE — remove before publishing
+// REMOVE BEFORE PUBLISHING — testing mode only
+const GITHUB_TOKEN = ''; // Tester will paste their token here
+const GITHUB_REPO = 'mynameisjef1328/workflow-advisor';
+
+async function createTestingPR(payload) {
+  const { validation_md_section, validation_md_rule, index_html_rule, commit_message } = payload;
+
+  if (!GITHUB_TOKEN) {
+    renderAdvisorMessage(
+      '⚠️ GitHub token not configured — copy the rules above and apply manually.\n\n' +
+      '**validation.md addition:**\n```\n' + validation_md_rule + '\n```\n\n' +
+      '**index.html addition:**\n```\n' + index_html_rule + '\n```'
+    );
+    return;
+  }
+
+  appendThinking();
+
+  try {
+    const apiBase = 'https://api.github.com/repos/' + GITHUB_REPO;
+    const headers = {
+      'Authorization': 'Bearer ' + GITHUB_TOKEN,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+
+    // 1. Get main branch SHA
+    const branchRes = await fetch(apiBase + '/git/ref/heads/main', { headers });
+    if (!branchRes.ok) throw new Error('Failed to get main branch: ' + branchRes.status);
+    const mainSha = (await branchRes.json()).object.sha;
+
+    // 2. Create new branch
+    const newBranch = 'testing/validation-update-' + Math.floor(Date.now() / 1000);
+    const createBranchRes = await fetch(apiBase + '/git/refs', {
+      method: 'POST', headers,
+      body: JSON.stringify({ ref: 'refs/heads/' + newBranch, sha: mainSha })
+    });
+    if (!createBranchRes.ok) throw new Error('Failed to create branch: ' + createBranchRes.status);
+
+    // 3. Update validation.md
+    const valRes = await fetch(apiBase + '/contents/skills/validation.md?ref=' + newBranch, { headers });
+    if (!valRes.ok) throw new Error('Failed to fetch validation.md: ' + valRes.status);
+    const valData = await valRes.json();
+    const valContent = decodeURIComponent(escape(atob(valData.content.replace(/\n/g, ''))));
+    const sectionHeader = '## ' + validation_md_section;
+    let updatedVal;
+    if (valContent.includes(sectionHeader)) {
+      const idx = valContent.indexOf(sectionHeader);
+      const nextIdx = valContent.indexOf('\n## ', idx + sectionHeader.length);
+      updatedVal = nextIdx >= 0
+        ? valContent.slice(0, nextIdx) + '\n' + validation_md_rule + valContent.slice(nextIdx)
+        : valContent + '\n' + validation_md_rule + '\n';
+    } else {
+      updatedVal = valContent + '\n\n' + sectionHeader + '\n' + validation_md_rule + '\n';
+    }
+    const valCommitRes = await fetch(apiBase + '/contents/skills/validation.md', {
+      method: 'PUT', headers,
+      body: JSON.stringify({ message: commit_message, content: btoa(unescape(encodeURIComponent(updatedVal))), sha: valData.sha, branch: newBranch })
+    });
+    if (!valCommitRes.ok) throw new Error('Failed to commit validation.md: ' + valCommitRes.status);
+
+    // 4. Update index.html
+    const idxRes = await fetch(apiBase + '/contents/index.html?ref=' + newBranch, { headers });
+    if (!idxRes.ok) throw new Error('Failed to fetch index.html: ' + idxRes.status);
+    const idxData = await idxRes.json();
+    const b64 = idxData.content.replace(/\n/g, '');
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const idxContent = new TextDecoder('utf-8').decode(bytes);
+    const insertMarker = 'IMPORTANT — IF THE REQUEST IS TRULY NOT POSSIBLE:';
+    const insertIdx = idxContent.indexOf(insertMarker);
+    const updatedIdx = insertIdx >= 0
+      ? idxContent.slice(0, insertIdx) + index_html_rule + '\n\n' + idxContent.slice(insertIdx)
+      : idxContent;
+    const encBytes = new TextEncoder().encode(updatedIdx);
+    const encB64 = btoa(Array.from(encBytes, b => String.fromCharCode(b)).join(''));
+    const idxCommitRes = await fetch(apiBase + '/contents/index.html', {
+      method: 'PUT', headers,
+      body: JSON.stringify({ message: commit_message + ' [index.html]', content: encB64, sha: idxData.sha, branch: newBranch })
+    });
+    if (!idxCommitRes.ok) throw new Error('Failed to commit index.html: ' + idxCommitRes.status);
+
+    // 5. Open PR
+    const prRes = await fetch(apiBase + '/pulls', {
+      method: 'POST', headers,
+      body: JSON.stringify({
+        title: commit_message,
+        body: 'Auto-generated from Testing Mode correction.\n\n**validation.md addition:**\n```\n' + validation_md_rule + '\n```\n\n**index.html addition:**\n```\n' + index_html_rule + '\n```',
+        head: newBranch,
+        base: 'main'
+      })
+    });
+    if (!prRes.ok) throw new Error('Failed to create PR: ' + prRes.status);
+    const prData = await prRes.json();
+
+    removeThinking();
+    renderAdvisorMessage('\u2705 PR #' + prData.number + ' created \u2014 [View PR](' + prData.html_url + '). Ready to merge when you are.');
+
+  } catch (err) {
+    removeThinking();
+    renderAdvisorMessage('\u26a0\ufe0f PR creation failed: ' + escapeHtml(err.message) + '. The formatted rules are above \u2014 you can copy them manually.');
+    console.error('[TESTING MODE] PR creation error:', err);
+  }
+}
+// TESTING MODE END
+
+window.TESTING_MODE = false;
+
+(function () {
+  const SECRET = 'fernando';
+  const buffer = [];
+
+  function showTestingPill(on) {
+    const pill = document.getElementById('testing-mode-indicator');
+    if (!pill) return;
+    if (on) {
+      pill.style.display = 'block';
+      requestAnimationFrame(function () { pill.classList.add('visible'); });
+    } else {
+      pill.classList.remove('visible');
+      setTimeout(function () { pill.style.display = 'none'; }, 300);
+    }
+  }
+
+  document.addEventListener('keydown', function (e) {
+    // Only track single printable letter keys; ignore modifiers, Enter, Tab, arrows, etc.
+    if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (!/^[a-zA-Z]$/.test(e.key)) return;
+
+    buffer.push(e.key.toLowerCase());
+    if (buffer.length > SECRET.length) buffer.shift();
+
+    if (buffer.join('') === SECRET) {
+      buffer.length = 0;
+      window.TESTING_MODE = !window.TESTING_MODE;
+      showTestingPill(window.TESTING_MODE);
+    }
+  });
+}());
+// TESTING MODE END
+
 </script>
 <div class="help-modal-overlay" id="helpModal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="help-modal">
@@ -1531,5 +1772,8 @@ document.addEventListener('DOMContentLoaded', function() {
     <button class="help-modal-close" onclick="document.getElementById('helpModal').classList.remove('open')">OK</button>
   </div>
 </div>
+<!-- TESTING MODE — remove before publishing -->
+<div id="testing-mode-indicator">🔧 Testing Mode</div>
+<!-- TESTING MODE END -->
 </body>
 </html>
