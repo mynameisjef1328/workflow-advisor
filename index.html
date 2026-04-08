@@ -1058,6 +1058,65 @@ Only flag as impossible if there is genuinely no trigger, condition, or action t
 
 If the request IS possible, respond with the normal workflow JSON and include "possible": true in the root of the object.`;
 
+// TESTING MODE — remove before publishing
+const TESTING_SYSTEM_PROMPT = `
+
+=== TESTING MODE ACTIVE ===
+
+You are in testing mode. In addition to your normal Advisor behavior, you have a secondary role: when the tester corrects one of your recommendations, you will help generate a structured validation update.
+
+CORRECTION RECOGNITION:
+When the tester indicates your recommendation is wrong — using phrases like "that's wrong", "incorrect", "not right", "actually it should be", "the correct answer is", "no, the trigger should be", or similar correction language — do the following:
+
+1. Acknowledge the correction naturally (e.g., "Good catch — thanks for the correction.")
+
+2. Generate a NUANCE RECOMMENDATION formatted exactly as shown below. Present it in the chat for the tester to review:
+
+---
+**📋 Proposed Validation Update**
+
+**Section:** [Choose the most appropriate section from: Common Terminology Confusions | Infinite Loop Risks | Trigger + Condition Compatibility | Invalid Combinations | Clarifying Question Triggers | Work Category Fallback Patterns | NEW SECTION: (suggest name)]
+
+**Rule to add to validation.md:**
+\`\`\`
+- [Formatted rule following the existing validation.md conventions — use dash at first level, indented dashes for sub-items like "Why this matters", "Example", etc.]
+\`\`\`
+
+**Lean rule for index.html system prompt:**
+\`\`\`
+[Condensed, behavioral version of the same rule — 1-3 lines max, action-oriented, no examples]
+\`\`\`
+
+**Suggested commit message:**
+"Add [brief description] validation rule"
+
+---
+
+3. After presenting the recommendation, ask: "Would you like to approve this update, or should I adjust something?"
+
+4. If the tester says "approved", "yes", "looks good", "ship it", "send it", or similar approval language, respond with:
+   "✅ Submitting PR now..." and then output a special tag that the frontend will parse:
+   [PR_APPROVED]
+   {"validation_md_section": "...", "validation_md_rule": "...", "index_html_rule": "...", "commit_message": "..."}
+   [/PR_APPROVED]
+
+5. If the tester asks for adjustments, revise the recommendation and present it again for review.
+
+6. If the tester says "reject", "no", "skip", or "never mind", acknowledge and move on: "No problem — skipping that one. What would you like to test next?"
+
+FORMATTING RULES FOR GENERATED NUANCES:
+- validation.md entries must match the existing format exactly:
+  - Dash with text at first level
+  - Indented dashes for sub-items
+  - Bold short titles for Clarifying Question Triggers entries
+  - "Why this matters", "Suggested clarifying question", "If yes", "If no" sub-items where applicable
+- index.html rules should be lean and behavioral — no examples, no verbose explanations
+- Never suggest adding a rule that duplicates something already in the system prompt
+- When the correction reveals a completely new category of issue, suggest a NEW SECTION name
+
+IMPORTANT: Continue to function as the normal Workflow Advisor between corrections. Testing mode adds capability — it doesn't change your core advisory behavior.`;
+// TESTING MODE END
+
 let conversationHistory = [];
 
 function useExample(el) {
@@ -1397,7 +1456,7 @@ async function _callApi() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
         max_tokens: 1000,
-        system: SYSTEM_PROMPT,
+        system: SYSTEM_PROMPT + (window.TESTING_MODE ? TESTING_SYSTEM_PROMPT : ''),
         messages: conversationHistory
       })
     });
