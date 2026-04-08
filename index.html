@@ -1482,6 +1482,25 @@ async function _callApi() {
 
     conversationHistory.push({ role: 'assistant', content: raw });
 
+    // TESTING MODE — remove before publishing
+    if (window.TESTING_MODE && raw.includes('[PR_APPROVED]')) {
+      const displayText = raw.replace(/\[PR_APPROVED\][\s\S]*?\[\/PR_APPROVED\]/, '').trim();
+      if (displayText) renderAdvisorMessage(displayText);
+      const prMatch = raw.match(/\[PR_APPROVED\]([\s\S]*?)\[\/PR_APPROVED\]/);
+      if (prMatch) {
+        try {
+          await createTestingPR(JSON.parse(prMatch[1].trim()));
+        } catch (parseErr) {
+          renderAdvisorMessage('\u26a0\ufe0f Could not parse PR payload: ' + escapeHtml(parseErr.message));
+        }
+      }
+      if (btn) btn.disabled = false;
+      const inputEl = document.getElementById('userInput');
+      if (inputEl) inputEl.focus();
+      return;
+    }
+    // TESTING MODE END
+
     // Check for clarify block first
     if (raw.includes('[CLARIFY]')) {
       renderAdvisorMessage(raw);
@@ -1619,6 +1638,112 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // TESTING MODE — remove before publishing
+// REMOVE BEFORE PUBLISHING — testing mode only
+const GITHUB_TOKEN = ''; // Tester will paste their token here
+const GITHUB_REPO = 'mynameisjef1328/workflow-advisor';
+
+async function createTestingPR(payload) {
+  const { validation_md_section, validation_md_rule, index_html_rule, commit_message } = payload;
+
+  if (!GITHUB_TOKEN) {
+    renderAdvisorMessage(
+      '⚠️ GitHub token not configured — copy the rules above and apply manually.\n\n' +
+      '**validation.md addition:**\n```\n' + validation_md_rule + '\n```\n\n' +
+      '**index.html addition:**\n```\n' + index_html_rule + '\n```'
+    );
+    return;
+  }
+
+  appendThinking();
+
+  try {
+    const apiBase = 'https://api.github.com/repos/' + GITHUB_REPO;
+    const headers = {
+      'Authorization': 'Bearer ' + GITHUB_TOKEN,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+
+    // 1. Get main branch SHA
+    const branchRes = await fetch(apiBase + '/git/ref/heads/main', { headers });
+    if (!branchRes.ok) throw new Error('Failed to get main branch: ' + branchRes.status);
+    const mainSha = (await branchRes.json()).object.sha;
+
+    // 2. Create new branch
+    const newBranch = 'testing/validation-update-' + Math.floor(Date.now() / 1000);
+    const createBranchRes = await fetch(apiBase + '/git/refs', {
+      method: 'POST', headers,
+      body: JSON.stringify({ ref: 'refs/heads/' + newBranch, sha: mainSha })
+    });
+    if (!createBranchRes.ok) throw new Error('Failed to create branch: ' + createBranchRes.status);
+
+    // 3. Update validation.md
+    const valRes = await fetch(apiBase + '/contents/skills/validation.md?ref=' + newBranch, { headers });
+    if (!valRes.ok) throw new Error('Failed to fetch validation.md: ' + valRes.status);
+    const valData = await valRes.json();
+    const valContent = decodeURIComponent(escape(atob(valData.content.replace(/\n/g, ''))));
+    const sectionHeader = '## ' + validation_md_section;
+    let updatedVal;
+    if (valContent.includes(sectionHeader)) {
+      const idx = valContent.indexOf(sectionHeader);
+      const nextIdx = valContent.indexOf('\n## ', idx + sectionHeader.length);
+      updatedVal = nextIdx >= 0
+        ? valContent.slice(0, nextIdx) + '\n' + validation_md_rule + valContent.slice(nextIdx)
+        : valContent + '\n' + validation_md_rule + '\n';
+    } else {
+      updatedVal = valContent + '\n\n' + sectionHeader + '\n' + validation_md_rule + '\n';
+    }
+    const valCommitRes = await fetch(apiBase + '/contents/skills/validation.md', {
+      method: 'PUT', headers,
+      body: JSON.stringify({ message: commit_message, content: btoa(unescape(encodeURIComponent(updatedVal))), sha: valData.sha, branch: newBranch })
+    });
+    if (!valCommitRes.ok) throw new Error('Failed to commit validation.md: ' + valCommitRes.status);
+
+    // 4. Update index.html
+    const idxRes = await fetch(apiBase + '/contents/index.html?ref=' + newBranch, { headers });
+    if (!idxRes.ok) throw new Error('Failed to fetch index.html: ' + idxRes.status);
+    const idxData = await idxRes.json();
+    const b64 = idxData.content.replace(/\n/g, '');
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const idxContent = new TextDecoder('utf-8').decode(bytes);
+    const insertMarker = 'IMPORTANT — IF THE REQUEST IS TRULY NOT POSSIBLE:';
+    const insertIdx = idxContent.indexOf(insertMarker);
+    const updatedIdx = insertIdx >= 0
+      ? idxContent.slice(0, insertIdx) + index_html_rule + '\n\n' + idxContent.slice(insertIdx)
+      : idxContent;
+    const encBytes = new TextEncoder().encode(updatedIdx);
+    const encB64 = btoa(Array.from(encBytes, b => String.fromCharCode(b)).join(''));
+    const idxCommitRes = await fetch(apiBase + '/contents/index.html', {
+      method: 'PUT', headers,
+      body: JSON.stringify({ message: commit_message + ' [index.html]', content: encB64, sha: idxData.sha, branch: newBranch })
+    });
+    if (!idxCommitRes.ok) throw new Error('Failed to commit index.html: ' + idxCommitRes.status);
+
+    // 5. Open PR
+    const prRes = await fetch(apiBase + '/pulls', {
+      method: 'POST', headers,
+      body: JSON.stringify({
+        title: commit_message,
+        body: 'Auto-generated from Testing Mode correction.\n\n**validation.md addition:**\n```\n' + validation_md_rule + '\n```\n\n**index.html addition:**\n```\n' + index_html_rule + '\n```',
+        head: newBranch,
+        base: 'main'
+      })
+    });
+    if (!prRes.ok) throw new Error('Failed to create PR: ' + prRes.status);
+    const prData = await prRes.json();
+
+    removeThinking();
+    renderAdvisorMessage('\u2705 PR #' + prData.number + ' created \u2014 [View PR](' + prData.html_url + '). Ready to merge when you are.');
+
+  } catch (err) {
+    removeThinking();
+    renderAdvisorMessage('\u26a0\ufe0f PR creation failed: ' + escapeHtml(err.message) + '. The formatted rules are above \u2014 you can copy them manually.');
+    console.error('[TESTING MODE] PR creation error:', err);
+  }
+}
+// TESTING MODE END
+
 window.TESTING_MODE = false;
 
 (function () {
