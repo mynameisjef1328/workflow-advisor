@@ -620,6 +620,27 @@
     .start-over-btn { width: 100%; justify-content: center; }
   }
 
+  /* TESTING MODE — remove before publishing */
+  #testing-mode-indicator {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    background: rgba(100, 40, 160, 0.88);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    z-index: 9999;
+    letter-spacing: 0.03em;
+    pointer-events: none;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  #testing-mode-indicator.visible { opacity: 1; }
+  /* TESTING MODE END */
+
 </style>
 </head>
 <body>
@@ -1538,6 +1559,42 @@ document.addEventListener('DOMContentLoaded', function() {
   if (counterEl) counterEl.textContent = storedCount;
 });
 
+// TESTING MODE — remove before publishing
+window.TESTING_MODE = false;
+
+(function () {
+  const SECRET = 'fernando';
+  const buffer = [];
+
+  function showTestingPill(on) {
+    const pill = document.getElementById('testing-mode-indicator');
+    if (!pill) return;
+    if (on) {
+      pill.style.display = 'block';
+      requestAnimationFrame(function () { pill.classList.add('visible'); });
+    } else {
+      pill.classList.remove('visible');
+      setTimeout(function () { pill.style.display = 'none'; }, 300);
+    }
+  }
+
+  document.addEventListener('keydown', function (e) {
+    // Only track single printable letter keys; ignore modifiers, Enter, Tab, arrows, etc.
+    if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (!/^[a-zA-Z]$/.test(e.key)) return;
+
+    buffer.push(e.key.toLowerCase());
+    if (buffer.length > SECRET.length) buffer.shift();
+
+    if (buffer.join('') === SECRET) {
+      buffer.length = 0;
+      window.TESTING_MODE = !window.TESTING_MODE;
+      showTestingPill(window.TESTING_MODE);
+    }
+  });
+}());
+// TESTING MODE END
+
 </script>
 <div class="help-modal-overlay" id="helpModal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="help-modal">
@@ -1545,5 +1602,8 @@ document.addEventListener('DOMContentLoaded', function() {
     <button class="help-modal-close" onclick="document.getElementById('helpModal').classList.remove('open')">OK</button>
   </div>
 </div>
+<!-- TESTING MODE — remove before publishing -->
+<div id="testing-mode-indicator">🔧 Testing Mode</div>
+<!-- TESTING MODE END -->
 </body>
 </html>
