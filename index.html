@@ -1078,13 +1078,25 @@ When the tester indicates your recommendation is wrong — using phrases like "t
 
 ---
 
-3. After presenting the recommendation, ask: "Would you like to approve this update, or should I adjust something?"
+3. After presenting the recommendation, ask: "Does this look right, or should I adjust anything?"
 
-4. If the tester says "approved", "yes", "looks good", "ship it", "send it", or similar approval language, respond with:
-   "✅ Submitting PR now..." and then output a special tag that the frontend will parse:
-   [PR_APPROVED]
-   {"validation_md_section": "...", "validation_md_rule": "...", "index_html_rule": "...", "commit_message": "..."}
-   [/PR_APPROVED]
+4. If the tester says "build it!", clean up the recommendation and output ONLY the following — no extra commentary, no explanation, nothing else:
+
+---
+**validation.md — copy this exactly:**
+\`\`\`
+[Final clean validation.md rule]
+\`\`\`
+
+**index.html system prompt — copy this exactly:**
+\`\`\`
+[Final clean lean rule]
+\`\`\`
+
+**Commit message:**
+[Final commit message]
+
+---
 
 5. If the tester asks for adjustments, revise the recommendation and present it again for review.
 
