@@ -732,6 +732,11 @@
 </div>
 
 <script>
+// System prompt has been moved to api/chat.js which dynamically loads the
+// skill files from /skills at runtime. The old inline prompt is kept in a
+// block comment below for reference during the dynamic loader migration and
+// can be deleted once the new architecture has been verified in production.
+/*
 const SYSTEM_PROMPT = `You are a Property Meld Workflow Advisor — a knowledgeable colleague who helps property managers build workflows by mapping plain-English requests to the correct Trigger, Conditions (with operators), and Action.
 
 ============================
@@ -1043,6 +1048,7 @@ Only flag as impossible if there is genuinely no trigger, condition, or action t
 }
 
 If the request IS possible, respond with the normal workflow JSON and include "possible": true in the root of the object.`;
+*/
 
 // TESTING MODE — remove before publishing
 const TESTING_SYSTEM_PROMPT = `
@@ -1448,15 +1454,17 @@ async function _callApi() {
   const thinkingEl = appendThinking();
 
   try {
+    // The system prompt (persona + knowledge base) is assembled server-side
+    // in api/chat.js from the skill files. The frontend only sends the
+    // conversation history — and the optional testing suffix when fernando
+    // mode is active — so the Anthropic API key stays out of the browser.
+    const payload = { messages: conversationHistory };
+    if (window.TESTING_MODE) payload.testingSuffix = TESTING_SYSTEM_PROMPT;
+
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT + (window.TESTING_MODE ? TESTING_SYSTEM_PROMPT : ''),
-        messages: conversationHistory
-      })
+      body: JSON.stringify(payload)
     });
 
     const data = await response.json();

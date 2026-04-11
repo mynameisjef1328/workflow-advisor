@@ -16,6 +16,18 @@ trigger, conditions, and action — ready to build in the app.
 - Knowledge base stored as modular markdown skill files
 - Styled with Property Meld branding (#1175CC)
 
+## How It Works (Technical)
+
+The Advisor uses a dynamic knowledge base architecture:
+
+1. User describes a workflow goal in the chat interface
+2. A Vercel serverless function reads the skill files (triggers, conditions, actions, validation rules, formatting) from the repository
+3. The skill file contents are assembled into a complete AI system prompt
+4. The assembled prompt + user query is sent to the Anthropic API
+5. The AI response is returned to the frontend
+
+This means updating the Advisor's knowledge is as simple as editing a markdown file in the `skills/` folder — no code changes required. The Anthropic API key is stored as a Vercel environment variable (`ANTHROPIC_API_KEY`) and never appears in client-side code.
+
 ---
 
 # Skills Architecture
