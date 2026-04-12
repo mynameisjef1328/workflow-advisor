@@ -1214,7 +1214,10 @@ function simpleMarkdown(text) {
       // Code block — preserve whitespace exactly
       var code = escapeHtml(parts[i]);
       code = code.replace(/^\w*\n/, ''); // strip language identifier line
-      html += '<pre style="background:#f5f5f5;padding:10px 12px;border-radius:6px;overflow-x:auto;font-size:13px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;margin:8px 0;">' + code + '</pre>';
+      html += '<div style="position:relative;margin:8px 0;">'
+        + '<button onclick="navigator.clipboard.writeText(this.parentElement.querySelector(\'pre\').textContent).then(function(){var b=event.target.closest(\'button\');b.textContent=\'Copied!\';setTimeout(function(){b.textContent=\'\u{1F4CB}\'},1500)})" style="position:absolute;top:6px;right:6px;background:#e0e0e0;border:none;border-radius:4px;padding:3px 8px;font-size:12px;cursor:pointer;opacity:0.7;z-index:1;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">\u{1F4CB}</button>'
+        + '<pre style="background:#f5f5f5;padding:10px 12px;border-radius:6px;overflow-x:auto;font-size:13px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;">' + code + '</pre>'
+        + '</div>';
     }
   }
   return html;
