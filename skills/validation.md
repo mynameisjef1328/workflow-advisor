@@ -1,5 +1,47 @@
 # VALIDATION
 
+IMPORTANT: Before recommending any workflow, check the Clarifying Question Triggers section FIRST. If any pattern matches the user's request, you MUST respond with [CLARIFY] only — do not also recommend a workflow.
+
+## Clarifying Question Triggers
+
+These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). When one matches, respond with the clarifying question ONLY — do not include a workflow recommendation in the same response. Wait for the user's answer, then recommend on the next turn.
+
+- **Send Message From Template + Meld Creator Type** — When a workflow request involves the **Send Message From Template** action triggered by **Meld Created** or **Meld Created or Updated**, ask whether the condition **Meld Creator Type = Tenant** should be applied.
+  - **Why this matters:** Triage melds ask tenants to perform minor troubleshooting before a work order proceeds. If the workflow sends a message on meld creation without filtering by creator type, it will also fire on melds created internally by staff — where the triage message doesn't apply.
+  - **Suggested clarifying question:** "Should this message only go out when the meld is created by a tenant? A lot of teams add this condition because of triage melds — without it, the message also fires on melds created by staff."
+  - **If yes:** Add condition → Meld Creator Type · Any Of · Tenant
+  - **If no:** Proceed without the condition, but note that the workflow will fire for all creator types
+
+- **"Send a message"** — Ambiguous between:
+  - Sending to the tenant
+  - Sending to the vendor
+  - Sending internally
+  Ask: Who should receive this message — the tenant, the vendor, or your internal team?
+
+- **"Assign someone" / "Assign meld"** — Ambiguous between:
+  - Checking if a meld IS assigned (Meld Assigned condition → Present)
+  - The Assign Meld Action (assigns a technician or vendor)
+  - The Meld Assigned trigger (fires when an assignment happens)
+  Ask: Are you checking whether a meld is assigned, or do you want to assign someone when something happens?
+
+- **Coordinator vs. Vendor assignment** — "Assign someone" could mean:
+  - Assign Meld (technician or vendor)
+  - Assign Coordinator
+  Ask: Should this assign a maintenance technician or vendor, or a coordinator?
+
+- **"Unassign meld"** — Ambiguous between:
+  - Unassigning a vendor (Meld Unassigned trigger + Assigned Vendor condition)
+  - Unassigning a maintenance technician (Meld Unassigned trigger + Assigned Internal Maintenance condition)
+  - The Unassign Meld Action in a workflow
+  Ask: Are you trying to unassign a vendor, a maintenance technician, or both?
+
+- **"When a meld is updated"** — High loop risk; always clarify what specific update should trigger the workflow and add a condition to prevent infinite loops.
+
+- **Timing ambiguities** — When no delay or timeframe is specified but the workflow implies one:
+  - "Notify when not scheduled" — how long after creation should this fire?
+  - "Send a reminder" — how many days before/after?
+  Ask: Should this trigger immediately, or after a specific time window?
+
 ## Common Terminology Confusions
 
 - **Tenant vs. Resident terminology** — Users may refer to tenants as "residents" and vice versa. These terms are interchangeable in Property Meld.
@@ -46,42 +88,3 @@ Example for HVAC:
 
 The Advisor should tailor the keyword list to the specific category being targeted and mention to the user why this fallback is recommended.
 
-## Clarifying Question Triggers
-
-These ambiguity patterns should prompt a [CLARIFY] question (MEDIUM CONFIDENCE):
-
-- **"Unassign meld"** — Ambiguous between:
-  - Unassigning a vendor (Meld Unassigned trigger + Assigned Vendor condition)
-  - Unassigning a maintenance technician (Meld Unassigned trigger + Assigned Internal Maintenance condition)
-  - The Unassign Meld Action in a workflow
-  Ask: Are you trying to unassign a vendor, a maintenance technician, or both?
-
-- **"Assign meld"** — Ambiguous between:
-  - Checking if a meld IS assigned (Meld Assigned condition → Present)
-  - The Assign Meld Action (assigns a technician or vendor)
-  - The Meld Assigned trigger (fires when an assignment happens)
-  Ask: Are you checking whether a meld is assigned, or do you want to assign someone when something happens?
-
-- **Timing ambiguities** — When no delay or timeframe is specified but the workflow implies one:
-  - "Notify when not scheduled" — how long after creation should this fire?
-  - "Send a reminder" — how many days before/after?
-  Ask: Should this trigger immediately, or after a specific time window?
-
-- **"Send a message"** — Ambiguous between:
-  - Sending to the tenant
-  - Sending to the vendor
-  - Sending internally
-  Ask: Who should receive this message — the tenant, the vendor, or your internal team?
-
-- **"When a meld is updated"** — High loop risk; always clarify what specific update should trigger the workflow and add a condition to prevent infinite loops.
-
-- **Coordinator vs. Vendor assignment** — "Assign someone" could mean:
-  - Assign Meld (technician or vendor)
-  - Assign Coordinator
-  Ask: Should this assign a maintenance technician or vendor, or a coordinator?
-
-- **Send Message From Template + Meld Creator Type** — When a workflow request involves the **Send Message From Template** action triggered by **Meld Created** or **Meld Created or Updated**, ask whether the condition **Meld Creator Type = Tenant** should be applied.
-  - **Why this matters:** Triage melds ask tenants to perform minor troubleshooting before a work order proceeds. If the workflow sends a message on meld creation without filtering by creator type, it will also fire on melds created internally by staff — where the triage message doesn't apply.
-  - **Suggested clarifying question:** "Should this message only go out when the meld is created by a tenant? A lot of teams add this condition because of triage melds — without it, the message also fires on melds created by staff."
-  - **If yes:** Add condition → Meld Creator Type · Any Of · Tenant
-  - **If no:** Proceed without the condition, but note that the workflow will fire for all creator types

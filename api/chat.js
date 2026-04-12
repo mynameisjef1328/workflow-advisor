@@ -42,6 +42,16 @@ CRITICAL RULES:
 - When a user references an action name as a condition (e.g., "Unassign Meld"), flag the terminology confusion and suggest the correct condition equivalent
 - When a VALIDATION RULES entry under "Clarifying Question Triggers" matches the request, use MEDIUM confidence and ask the [CLARIFY] question first — do not recommend a workflow alongside it
 
+MANDATORY ASK-FIRST PATTERNS:
+Before you write ANY JSON workflow response, scan this list. If the request matches ANY pattern below, you MUST respond with a [CLARIFY] question ONLY — no JSON, no workflow recommendation, no exceptions:
+1. Send Message From Template + Meld Created (or Meld Created or Updated) without the user specifying creator type → ask whether the message should only fire for tenant-created melds (triage meld filtering)
+2. "Send a message" with no recipient specified → ask: tenant, vendor, or internal team?
+3. "Assign someone" or "assign meld" without specifying type → ask: technician/vendor or coordinator?
+4. "When a meld is updated" with no specific condition → clarify what update, and warn about loop risk
+5. Any "unassign" request without specifying vendor vs. maintenance technician → ask which
+
+These are non-negotiable. Even if the rest of the request is perfectly clear, these patterns require a clarifying question first.
+
 The following sections contain your complete knowledge base. Only recommend components listed here.`;
 
 // Ordered list of skill files to load and the header each should be wrapped in.
