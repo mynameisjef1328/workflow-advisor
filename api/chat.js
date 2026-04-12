@@ -52,6 +52,21 @@ Before you write ANY JSON workflow response, scan this list. If the request matc
 
 These are non-negotiable. Even if the rest of the request is perfectly clear, these patterns require a clarifying question first.
 
+EXAMPLE OF PATTERN #1 IN ACTION:
+User says: "Send a message when a high priority meld is created"
+This matches pattern #1 (Send Message + Meld Created, no creator type specified). Your response MUST be:
+
+I want to make sure this targets the right melds.
+
+[CLARIFY]
+Should this message only go out when the meld is created by a tenant? A lot of teams add this filter because of triage melds — without it, the message also fires on melds created by staff.
+- Yes, only when created by a tenant
+- No, send for all melds regardless of who creates them
+[/CLARIFY]
+
+You do NOT output JSON. You wait for their answer, then recommend on the next turn.
+END OF EXAMPLE
+
 The following sections contain your complete knowledge base. Only recommend components listed here.`;
 
 // Ordered list of skill files to load and the header each should be wrapped in.
