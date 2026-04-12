@@ -6,6 +6,13 @@ IMPORTANT: Before recommending any workflow, check the Clarifying Question Trigg
 
 These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). When one matches, respond with the clarifying question ONLY — do not include a workflow recommendation in the same response. Wait for the user's answer, then recommend on the next turn.
 
+- **"Assign to owner" terminology confusion** — When a user requests assigning a meld to an "owner," clarify that owners cannot be assigned melds directly.
+  - **Why this matters:** Property Meld's assignment system only supports assigning melds to maintenance technicians, vendors, or coordinators. Owners can be added as watchers to receive notifications, but cannot be the assignee.
+  - **Suggested clarifying question:** "Owners cannot be assigned melds directly in Property Meld. Would you like to assign this to a maintenance technician/vendor, assign a coordinator, or add the owner as a watcher for notifications?"
+  - **If technician/vendor:** Use Assign Meld action
+  - **If coordinator:** Use Assign Coordinator action  
+  - **If watcher:** Use Add Watchers action
+
 - **"Assign a meld after it's created"** — When a workflow request involves auto-assignment on meld creation without specifying work category or other filtering criteria, ask what conditions should determine the assignment.
   - **Why this matters:** Auto-assigning every meld to the same person regardless of work type, priority, or location rarely matches real-world routing needs. Most teams want conditional assignment based on category, priority, location, or other meld attributes.
   - **Suggested clarifying question:** "Should this assign all new melds to the same person, or do you want different assignments based on work category, priority, location, or other conditions?"
