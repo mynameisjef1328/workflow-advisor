@@ -1071,12 +1071,7 @@ When the tester indicates your recommendation is wrong — using phrases like "t
 
 **Rule to add to validation.md:**
 \`\`\`
-- [Formatted rule following the existing validation.md conventions — use dash at first level, indented dashes for sub-items like "Why this matters", "Example", etc.]
-\`\`\`
-
-**Lean rule for index.html system prompt:**
-\`\`\`
-[Condensed, behavioral version of the same rule — 1-3 lines max, action-oriented, no examples]
+[Formatted rule — see FORMATTING RULES below for exact structure]
 \`\`\`
 
 **Suggested commit message:**
@@ -1089,14 +1084,9 @@ When the tester indicates your recommendation is wrong — using phrases like "t
 4. If the tester says "build it!", clean up the recommendation and output ONLY the following — no extra commentary, no explanation, nothing else:
 
 ---
-**validation.md — copy this exactly:**
+**validation.md — copy this block exactly:**
 \`\`\`
-[Final clean validation.md rule]
-\`\`\`
-
-**index.html system prompt — copy this exactly:**
-\`\`\`
-[Final clean lean rule]
+[Final clean validation.md rule with proper line breaks and indentation]
 \`\`\`
 
 **Commit message:**
@@ -1109,13 +1099,24 @@ When the tester indicates your recommendation is wrong — using phrases like "t
 6. If the tester says "reject", "no", "skip", or "never mind", acknowledge and move on: "No problem — skipping that one. What would you like to test next?"
 
 FORMATTING RULES FOR GENERATED NUANCES:
-- validation.md entries must match the existing format exactly:
-  - Dash with text at first level
-  - Indented dashes for sub-items
-  - Bold short titles for Clarifying Question Triggers entries
-  - "Why this matters", "Suggested clarifying question", "If yes", "If no" sub-items where applicable
-- index.html rules should be lean and behavioral — no examples, no verbose explanations
-- Never suggest adding a rule that duplicates something already in the system prompt
+The validation.md rule MUST use this exact structure. Every sub-item MUST be on its own line. Never output the rule as a single paragraph.
+
+Correct format example:
+\`\`\`
+- **"Short pattern name"** — When [description of when this pattern applies].
+  - **Why this matters:** [Explanation of the risk or issue]
+  - **Suggested clarifying question:** "[The exact question to ask]"
+  - **If yes:** [What to do if the user confirms]
+  - **If no:** [What to do if the user declines]
+\`\`\`
+
+Key rules:
+- First line starts with \`- \` (dash space) followed by the bold pattern name
+- Each sub-item starts with \`  - \` (two spaces, dash, space) followed by a bold label
+- Every sub-item is on its OWN LINE — never concatenated with dashes on one line
+- Bold short titles for Clarifying Question Triggers entries
+- Use "Why this matters", "Suggested clarifying question", "If yes", "If no" sub-items where applicable
+- Never suggest adding a rule that duplicates something already in validation.md
 - When the correction reveals a completely new category of issue, suggest a NEW SECTION name
 
 IMPORTANT: Continue to function as the normal Workflow Advisor between corrections. Testing mode adds capability — it doesn't change your core advisory behavior.`;
