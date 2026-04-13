@@ -1198,6 +1198,9 @@ IMPORTANT: Continue to function as the normal Workflow Advisor between correctio
 let conversationHistory = [];
 let pendingImage = null; // { base64: '...', mediaType: 'image/png', name: 'file.png' }
 
+const DEFAULT_PLACEHOLDER = 'e.g. Send a message when a high priority meld is created by a tenant\u2026';
+const IMAGE_PLACEHOLDER = 'e.g. "Review this" \u00b7 "What\'s wrong here?" \u00b7 "Here\'s what I have so far"';
+
 const MAX_IMAGE_DIMENSION = 1568; // Anthropic recommended max
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024; // 4MB limit for Vercel payload safety
 
@@ -1249,10 +1252,11 @@ function handleImageSelect(inputEl) {
       const base64 = dataUrl.split(',')[1];
       pendingImage = { base64, mediaType, name: file.name };
 
-      // Show preview
+      // Show preview and swap placeholder
       document.getElementById('imagePreviewImg').src = dataUrl;
       document.getElementById('imagePreviewLabel').textContent = file.name;
       document.getElementById('imagePreviewBar').classList.add('visible');
+      document.getElementById('userInput').placeholder = IMAGE_PLACEHOLDER;
     };
     img.src = e.target.result;
   };
@@ -1265,6 +1269,7 @@ function clearPendingImage() {
   document.getElementById('imagePreviewBar').classList.remove('visible');
   document.getElementById('imagePreviewImg').src = '';
   document.getElementById('imagePreviewLabel').textContent = '';
+  document.getElementById('userInput').placeholder = DEFAULT_PLACEHOLDER;
 }
 
 function useExample(el) {
