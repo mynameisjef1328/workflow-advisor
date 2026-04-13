@@ -30,7 +30,8 @@ Respond with ONLY this JSON object — no prose before or after, no markdown fen
   "actions": [
     {
       "action": "Action name from the Actions section",
-      "detail": "What to configure (e.g. which template, which priority)"
+      "detail": "What to configure (e.g. which template, which priority)",
+      "conditionGroups": []
     }
   ],
   "explanation": "1–2 sentence plain English explanation of how the workflow functions, including any loop-risk or review-before-activating note."
@@ -42,6 +43,27 @@ Notes on the JSON shape:
 - Chained actions → multiple objects in `actions` in execution order (e.g., Assign Meld → Delay → Send Message).
 - `"possible": true` must be present.
 - Always fold the "review before activating" reminder into `explanation` rather than emitting it as a separate sentence outside the JSON.
+- **Per-action conditions:** Any action in the `actions` array may include its own `conditionGroups` array. These conditions are checked before that specific action runs — not at the top of the workflow. Use this for chained workflows where a later action depends on a condition that only applies after a Delay or previous action. If an action has no special conditions, omit `conditionGroups` or set it to `[]`.
+
+Example — sequential vendor assignment with fallback:
+```
+"actions": [
+  { "action": "Assign Meld", "detail": "Select Vendor A" },
+  { "action": "Delay", "detail": "48 hours" },
+  {
+    "action": "Assign Meld",
+    "detail": "Select Vendor B",
+    "conditionGroups": [
+      {
+        "operator": "AND",
+        "conditions": [
+          { "field": "Vendor Assignment Accepted Date", "operator": "Missing", "value": "" }
+        ]
+      }
+    ]
+  }
+]
+```
 
 ### MEDIUM CONFIDENCE — respond with a [CLARIFY] block only
 
