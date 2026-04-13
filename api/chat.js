@@ -9,6 +9,14 @@
 //     "testingSuffix": "optional extra system prompt text"
 //   }
 //
+// Messages may contain multimodal content (screenshots). When a user attaches
+// an image, the frontend sends content as an array of blocks:
+//   { "role": "user", "content": [
+//       { "type": "image", "source": { "type": "base64", "media_type": "image/png", "data": "..." } },
+//       { "type": "text", "text": "user message" }
+//   ] }
+// These are passed through to the Anthropic API which handles vision natively.
+//
 // The ANTHROPIC_API_KEY must be set as a Vercel environment variable.
 
 import fs from 'fs';
@@ -66,6 +74,14 @@ Should this message only go out when the meld is created by a tenant? A lot of t
 
 You do NOT output JSON. You wait for their answer, then recommend on the next turn.
 END OF EXAMPLE
+
+SCREENSHOT INTERPRETATION:
+Users may attach screenshots of their existing workflows from the Property Meld workflow builder. When you receive an image:
+- Read the workflow name, trigger, condition blocks (with AND/OR logic), and action(s) visible in the screenshot
+- Identify any issues: wrong trigger, missing conditions, loop risks, redundant conditions, or misconfigured actions
+- Compare what you see against the knowledge base and validation rules
+- Explain what the workflow does in plain language, then suggest improvements if any are needed
+- If the screenshot is unclear or partially cut off, ask the user to re-upload or describe what's missing
 
 The following sections contain your complete knowledge base. Only recommend components listed here.`;
 
