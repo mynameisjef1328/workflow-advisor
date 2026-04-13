@@ -1418,6 +1418,36 @@ function renderWorkflow(data) {
     data.actions.forEach((a, ai) => {
       const isDelay = a.action.toLowerCase() === 'delay';
       const isLast = ai === data.actions.length - 1;
+
+      // Render per-action condition groups (for chained workflows)
+      if (a.conditionGroups && a.conditionGroups.length > 0) {
+        a.conditionGroups.forEach((group, gi) => {
+          if (gi > 0) {
+            actionsHtml += `<div style="padding:6px 0 2px 44px"><span class="operator-badge or">OR</span></div>`;
+          }
+          actionsHtml += `
+            <div class="flow-step">
+              <div class="step-connector">
+                <div class="step-dot condition">C</div>
+                <div class="step-line"></div>
+              </div>
+              <div class="step-body">
+                <div class="step-label condition">Condition${group.conditions.length > 1 ? 's' : ''}</div>
+                <div class="condition-group">
+                  ${group.conditions.map((c, ci) => `
+                    ${ci > 0 ? `<div><span class="operator-badge and">AND</span></div>` : ''}
+                    <div class="condition-item">
+                      <div class="step-title">${escapeHtml(c.field)}</div>
+                      <div class="step-detail">${escapeHtml(c.operator)} · <span class="tag">${escapeHtml(c.value || 'N/A')}</span></div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+
       actionsHtml += `
         <div class="flow-step">
           <div class="step-connector">
