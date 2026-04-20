@@ -6,6 +6,11 @@ IMPORTANT: Before recommending any workflow, check the Clarifying Question Trigg
 
 These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). When one matches, respond with the clarifying question ONLY — do not include a workflow recommendation in the same response. Wait for the user's answer, then recommend on the next turn.
 
+- **"Last Vendor Meld File Upload" condition available** — Property Meld tracks when vendors last uploaded files to melds, enabling workflows that check for missing photos or documentation.
+  - **Why this matters:** Many property managers want to follow up when vendors haven't provided completion photos or other required documentation after finishing work.
+  - **Available conditions:** Last Vendor Meld File Upload, Last Internal Meld File Upload, Last Tenant Meld File Upload with date operators (Missing, Before Past, Within Past, etc.)
+  - **Common pattern:** Delay action followed by file upload condition check to avoid redundant reminders
+
 - **"Request information from tenant/resident for specific work categories"** — When a workflow involves Send Message From Template triggered by Meld Created for specific work categories (like appliances, HVAC, etc.), automatically include Meld Creator Type = Tenant condition without asking.
   - **Why this matters:** Requests for model numbers, serial numbers, troubleshooting steps, or other tenant-provided information only make sense when the meld was created by a tenant. Without this condition, the message also fires on melds created by staff, where the request doesn't apply.
   - **Auto-include condition:** Meld Creator Type · Any Of · Tenant
