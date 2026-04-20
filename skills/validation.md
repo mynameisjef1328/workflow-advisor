@@ -6,6 +6,11 @@ IMPORTANT: Before recommending any workflow, check the Clarifying Question Trigg
 
 These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). When one matches, respond with the clarifying question ONLY — do not include a workflow recommendation in the same response. Wait for the user's answer, then recommend on the next turn.
 
+- **"Request information from tenant/resident for specific work categories"** — When a workflow involves Send Message From Template triggered by Meld Created for specific work categories (like appliances, HVAC, etc.), automatically include Meld Creator Type = Tenant condition without asking.
+  - **Why this matters:** Requests for model numbers, serial numbers, troubleshooting steps, or other tenant-provided information only make sense when the meld was created by a tenant. Without this condition, the message also fires on melds created by staff, where the request doesn't apply.
+  - **Auto-include condition:** Meld Creator Type · Any Of · Tenant
+  - **Note in explanation:** Mention that this filters to tenant-created melds since staff wouldn't need to provide this information
+
 - **"Tag/action after time period with conditions"** — When a user requests adding tags or taking actions on melds that are "older than X days" with additional conditions, clarify whether they want to check existing old melds or wait X days after creation to check conditions.
   - **Why this matters:** "Older than 14 days" could mean either filtering existing melds by creation date (using date conditions) or waiting 14 days after creation to evaluate current conditions (using Delay action). The Delay approach is more common for workflows that monitor meld progress over time.
   - **Suggested clarifying question:** "Should this check melds that are already 14+ days old, or wait 14 days after each meld is created to check these conditions?"
