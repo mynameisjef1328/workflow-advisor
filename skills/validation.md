@@ -43,12 +43,6 @@ These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). W
   - **Critical requirement:** The condition block after the Delay must check "Vendor Assignment Accepted Date · Missing" to ensure the second assignment only happens if the first vendor hasn't accepted
   - **Avoid suggesting:** Multiple separate workflows for what should be a single sequential flow, or omitting the acceptance check condition
 
-  - **"Tag/action after time period with conditions"** — When a user requests adding tags or taking actions on melds that are "older than X days" with additional conditions, clarify whether they want to check existing old melds or wait X days after creation to check conditions.
-  - **Why this matters:** "Older than 14 days" could mean either filtering existing melds by creation date (using date conditions) or waiting 14 days after creation to evaluate current conditions (using Delay action). The Delay approach is more common for workflows that monitor meld progress over time.
-  - **Suggested clarifying question:** "Should this check melds that are already 14+ days old, or wait 14 days after each meld is created to check these conditions?"
-  - **If check existing:** Use date conditions like "Meld Created · Before Past · 14 days"
-  - **If wait after creation:** Use "Delay · 14 days" action followed by condition checks
-
 - **"Assign a meld after it's created"** — When a workflow request involves auto-assignment on meld creation without specifying work category or other filtering criteria, ask what conditions should determine the assignment.
   - **Why this matters:** Auto-assigning every meld to the same person regardless of work type, priority, or location rarely matches real-world routing needs. Most teams want conditional assignment based on category, priority, location, or other meld attributes.
   - **Suggested clarifying question:** "Should this assign all new melds to the same person, or do you want different assignments based on work category, priority, location, or other conditions?"
