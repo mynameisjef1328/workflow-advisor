@@ -6,6 +6,11 @@ IMPORTANT: Before recommending any workflow, check the Clarifying Question Trigg
 
 These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). When one matches, respond with the clarifying question ONLY — do not include a workflow recommendation in the same response. Wait for the user's answer, then recommend on the next turn.
 
+- **"Unassign vendor after timeout" requires dual conditions** — When unassigning vendors who haven't accepted within a timeframe, check both assignment age and acceptance status.
+  - **Why this matters:** Using only "Vendor Assignment Accepted Date · Missing" doesn't verify the assignment is actually old enough to warrant unassigning.
+  - **Required conditions:** Vendor Assignment Date · Before Past · X days AND Vendor Assignment Accepted Date · Missing
+  - **Critical:** Both conditions prevent premature unassignment of recent assignments that vendors haven't had time to see yet
+
 - **"Before Past" vs "Missing" for file upload conditions** — When checking for missing recent uploads, use "Before Past · X days" instead of "Missing" to catch both never-uploaded and old-upload scenarios.
   - **Why this matters:** "Missing" only catches melds with zero file uploads ever, while "Before Past" catches melds where uploads happened but not recently (e.g., before photos but no after photos).
   - **Recommended pattern:** Last Vendor Meld File Upload · Before Past · 1 day (for post-completion photo requests)
