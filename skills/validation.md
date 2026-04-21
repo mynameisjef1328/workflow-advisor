@@ -13,6 +13,12 @@ These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). W
   - **If technician:** Use technician-specific conditions (Assigned Internal Maintenance, Internal Maintenance Assignment Date)
   - **If both:** Build separate condition blocks for each assignment type
 
+  - **Meld Created trigger with tenant-directed actions without creator type specified** — When a workflow request involves the Meld Created trigger with actions that primarily target or affect tenant interactions (Send Message From Template, priority escalation based on keywords, status changes based on description content), ask whether the condition Meld Creator Type = Tenant should be applied.
+  - **Why this matters:** Triage melds and tenant-directed automations are typically intended for tenant-created melds. Without creator type filtering, these workflows also fire on melds created internally by staff, where the automation may not apply or could create confusion.
+  - **Suggested clarifying question:** "Should this only happen when the meld is created by a tenant/resident? Many teams add this filter to avoid triggering on melds created internally by staff."
+  - **If yes:** Add condition → Meld Creator Type · Any Of · Tenant
+  - **If no:** Proceed without the creator type condition, but note that it will apply to all meld creators
+
 - **"Outside business hours" recurring range pattern** — When users request workflows for "outside business hours" or "after hours", use "In Recurring Range" blocks that cover the gaps between business days, not the business hours themselves.
   - **Why this matters:** To target after-hours melds, each recurring range should span from end of business one day to start of business the next day, plus full weekend coverage.
   - **Correct pattern for M-F 8 AM-5 PM business hours:** Monday 5:00 PM to Tuesday 8:00 AM, Tuesday 5:00 PM to Wednesday 8:00 AM, Wednesday 5:00 PM to Thursday 8:00 AM, Thursday 5:00 PM to Friday 8:00 AM, Friday 5:00 PM to Monday 8:00 AM
