@@ -54,6 +54,10 @@ These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). W
   - **Critical requirement:** The condition block after the Delay must check "Vendor Assignment Accepted Date · Missing" to ensure the second assignment only happens if the first vendor hasn't accepted
   - **Avoid suggesting:** Multiple separate workflows for what should be a single sequential flow, or omitting the acceptance check condition
 
+  - **"Request owner approval" action requests** — When users request workflows that automatically request owner approval from owners, explain that this action is not available in the workflow builder.
+  - **Why this matters:** Property Meld has a manual "Request Approval" button in the meld interface that requires specifying dollar amounts, but there is no corresponding workflow action. Users may assume this common PM task can be automated.
+  - **Suggested alternative:** "You could create a workflow that assigns these melds to a specific coordinator or adds a tag to flag them for manual owner approval review, making it easier to identify which melds need approval requests."
+
 - **"Assign a meld after it's created"** — When a workflow request involves auto-assignment on meld creation without specifying work category or other filtering criteria, ask what conditions should determine the assignment.
   - **Why this matters:** Auto-assigning every meld to the same person regardless of work type, priority, or location rarely matches real-world routing needs. Most teams want conditional assignment based on category, priority, location, or other meld attributes.
   - **Suggested clarifying question:** "Should this assign all new melds to the same person, or do you want different assignments based on work category, priority, location, or other conditions?"
