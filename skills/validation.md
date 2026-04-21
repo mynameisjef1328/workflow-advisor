@@ -13,10 +13,10 @@ These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). W
   - **If technician:** Use technician-specific conditions (Assigned Internal Maintenance, Internal Maintenance Assignment Date)
   - **If both:** Build separate condition blocks for each assignment type
 
-  - **"Not In Recurring Range" condition does not exist** — When users request workflows for "outside business hours" or "after hours", use "In Recurring Range" with specific day/time blocks connected by OR operators, not a non-existent "Not In Recurring Range" condition.
-  - **Why this matters:** Property Meld's workflow builder only has "In Recurring Range" as a time-based condition. To target outside business hours, you must define the business hours precisely using multiple recurring range blocks (one per business day) connected with OR logic.
-  - **Correct pattern:** Meld Created · In Recurring Range · Monday 8:00 AM to Monday 5:00 PM, OR Tuesday 8:00 AM to Tuesday 5:00 PM, etc.
-  - **Avoid suggesting:** "Not In Recurring Range" or any negated time conditions that don't exist in the system
+- **"Outside business hours" recurring range pattern** — When users request workflows for "outside business hours" or "after hours", use "In Recurring Range" blocks that cover the gaps between business days, not the business hours themselves.
+  - **Why this matters:** To target after-hours melds, each recurring range should span from end of business one day to start of business the next day, plus full weekend coverage.
+  - **Correct pattern for M-F 8 AM-5 PM business hours:** Monday 5:00 PM to Tuesday 8:00 AM, Tuesday 5:00 PM to Wednesday 8:00 AM, Wednesday 5:00 PM to Thursday 8:00 AM, Thursday 5:00 PM to Friday 8:00 AM, Friday 5:00 PM to Monday 8:00 AM
+  - **Avoid suggesting:** Using business hours themselves in the recurring ranges when the goal is to target outside those hours
 
 - **"Before Past" vs "Missing" for file upload conditions** — When checking for missing recent uploads, use "Before Past · X days" instead of "Missing" to catch both never-uploaded and old-upload scenarios.
   - **Why this matters:** "Missing" only catches melds with zero file uploads ever, while "Before Past" catches melds where uploads happened but not recently (e.g., before photos but no after photos).
