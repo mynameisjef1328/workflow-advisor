@@ -121,7 +121,6 @@ These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). W
 
 ## Infinite Loop Risks
 - Meld Updated + Send Message = HIGH LOOP RISK ⚠️
-- Meld Chat Sent + Send Message = HIGHEST LOOP RISK ⚠️
 - Meld Updated + Add Tag = LOOP RISK ⚠️
 - Meld Updated + Change Status = LOOP RISK ⚠️
 - Always recommend a condition as a circuit breaker
