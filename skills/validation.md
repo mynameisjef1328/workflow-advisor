@@ -114,10 +114,21 @@ These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). W
 - When user references an action as a condition, flag it and suggest the correct condition equivalent
 - NOTE: Rules marked ⚠️ are logical recommendations pending verification in the live app.
 
+# DANGEROUS WORKFLOW PATTERNS
+
+These workflow combinations are technically possible in the system but will cause immediate problems and should be flagged with a "dangerous" response rather than "not possible."
+
+## Infinite Loop Patterns
+
 - **Meld Chat Sent + Send Message From Template = INFINITE LOOP** — This combination creates an immediate infinite loop because the Send Message From Template action itself generates a new chat message, which re-triggers the workflow continuously.
-  - **Why this matters:** Unlike other loop risks that can be mitigated with conditions, this specific combination has no viable circuit breaker since every message sent will always trigger another message.
-  - **Recommended response:** Flag as impossible and explain the loop mechanism rather than suggesting conditions to prevent it.
-  - **Alternative suggestion:** Use a different trigger like Meld Created, Meld Updated, or Meld Assigned if the goal is chat-based communication at specific workflow points.
+  - **Response format:** Use `"possible": true, "dangerous": true, "risk": "infinite_loop"` 
+  - **Why this matters:** The workflow builder will accept this configuration, but it will immediately break when activated
+  - **Alternative suggestion:** Use a different trigger like Meld Created, Meld Updated, or Meld Assigned if the goal is chat-based communication at specific workflow points
+
+- **Meld Updated + Any action that updates the meld** — High risk of infinite loops unless proper circuit breaker conditions are included
+  - **Response format:** Use `"possible": true, "dangerous": true, "risk": "potential_loop"`
+  - **Why this matters:** Actions like Send Message, Add Tag, Update Meld, etc. can trigger the Meld Updated trigger again
+  - **Mitigation:** Always recommend specific conditions as circuit breakers
 
 ## Infinite Loop Risks
 - Meld Updated + Send Message = HIGH LOOP RISK ⚠️
