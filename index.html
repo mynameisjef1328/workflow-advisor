@@ -517,6 +517,37 @@
     text-transform: uppercase; margin-bottom: 4px; color: var(--green);
   }
 
+  /* Dangerous workflow card */
+  .dangerous-card {
+    background: var(--surface);
+    border: 1.5px solid #DC2626;
+    border-radius: 14px;
+    overflow: hidden;
+    max-width: 680px;
+    box-shadow: var(--shadow);
+  }
+  .dangerous-header {
+    padding: 14px 18px;
+    border-bottom: 1.5px solid #DC2626;
+    display: flex; align-items: center; gap: 10px;
+    background: #FEF2F2;
+  }
+  .dangerous-header h4 { font-size: 14px; font-weight: 700; color: #DC2626; }
+  .dangerous-header .wf-name { font-size: 13px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+  .dangerous-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .dangerous-reason { font-size: 13px; color: var(--text2); line-height: 1.7; }
+  .dangerous-suggestion {
+    background: #FEF2F2;
+    border: 1px solid #DC2626;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px; color: #DC2626; line-height: 1.6;
+  }
+  .dangerous-suggestion strong {
+    display: block; font-size: 10px; letter-spacing: 0.8px;
+    text-transform: uppercase; margin-bottom: 4px; color: #DC2626;
+  }
+
   /* Error */
   .error-msg {
     color: var(--red); font-size: 13px; padding: 10px 14px;
@@ -675,6 +706,7 @@
     .msg-content { max-width: 100% !important; }
     .workflow-card { max-width: 100%; }
     .not-possible-card { max-width: 100%; }
+    .dangerous-card { max-width: 100%; }
     .input-row { flex-wrap: wrap; gap: 8px; }
     .start-over-btn { width: 100%; justify-content: center; }
     .upload-btn { width: 46px; height: 46px; }
@@ -1542,6 +1574,41 @@ function renderNotPossible(data) {
   scrollToBottom();
 }
 
+function renderDangerousWorkflow(data) {
+  const container = document.getElementById('messages');
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg assistant fade-in';
+
+  const suggestionHtml = data.suggestion ? `
+    <div class="dangerous-suggestion">
+      <strong>💡 Alternative Approach</strong>
+      ${escapeHtml(data.suggestion)}
+    </div>` : '';
+
+  const logoImg = document.querySelector('header img');
+  const avatarImgSrc = logoImg ? logoImg.src : '';
+
+  wrapper.innerHTML = `
+    <div class="msg-avatar" style="background:transparent;border:none;"><img src="${avatarImgSrc}" style="width:32px;height:32px;object-fit:contain;mix-blend-mode:multiply;"></div>
+    <div class="dangerous-card">
+      <div class="dangerous-header">
+        <span>⚠️</span>
+        <div>
+          <h4>WORKFLOW RISK DETECTED</h4>
+          <div class="wf-name">${escapeHtml(data.workflowName || '')}</div>
+        </div>
+      </div>
+      <div class="dangerous-body">
+        <div class="dangerous-reason">${escapeHtml(data.reason)}</div>
+        ${suggestionHtml}
+      </div>
+      <div class="msg-time">Just now</div>
+    </div>
+  `;
+  container.appendChild(wrapper);
+  scrollToBottom();
+}
+
 function renderError(msg) {
   const container = document.getElementById('messages');
   const wrapper = document.createElement('div');
@@ -1735,6 +1802,8 @@ async function _callApi() {
         const parsed = JSON.parse(jsonMatch[0]);
         if (parsed.possible === false) {
           renderNotPossible(parsed);
+        } else if (parsed.dangerous === true) {
+          renderDangerousWorkflow(parsed);
         } else {
           renderWorkflow(parsed);
           incrementWorkflowCounter();
