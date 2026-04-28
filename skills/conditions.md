@@ -188,7 +188,7 @@
 
 ## Meld Status
 - Any Of
-  - Select: Completed, Maintenance Could Not Complete, Canceled by Manager, Pending Meld Assignment, Pending Completion, Pending Estimates, Pending More Management Availability, Pending More Vendor Availability, Pending Tenant Availability, Pending Vendor Acceptance, Canceled by Tenant, Vendor Could Not Complete
+  - Select: Completed, Maintenance Could Not Complete, Canceled by Manager, Pending Meld Assignment, Pending Completion, Pending Estimates, Pending More Management Availability, Pending More Vendor Availability, Pending Resident Availability, Pending Vendor Acceptance, Canceled by Resident, Vendor Could Not Complete
 - None Of
   - [same options as Any Of]
 - Not Contains All Of
@@ -202,13 +202,13 @@
 - Missing
 - Present
 
-## Meld Tenant Presence Required
+## Meld Resident Presence Required
 - Missing
 - Present
 - Is Value
   - Select: True or False
 
-## Meld Tenant Rating
+## Meld Resident Rating
 - Any Of
   - Select: 1, 2, 3, 4, or 5
 - None Of
@@ -224,7 +224,7 @@
 - Missing
 - Present
 
-## Meld Tenant Review
+## Meld Resident Review
 - Any Of
   - Add Keywords
 - None Of
@@ -232,17 +232,17 @@
 
 ## Meld Creator Type
 - Any Of
-  - Select: Tenant or Internal
+  - Select: Resident or Internal
 - None Of
-  - Select: Tenant or Internal
+  - Select: Resident or Internal
 - Not Contains All Of
-  - Select: Tenant or Internal
+  - Select: Resident or Internal
 - Contains All Of
-  - Select: Tenant or Internal
+  - Select: Resident or Internal
 - All Of
-  - Select: Tenant or Internal
+  - Select: Resident or Internal
 - Not All Of
-  - Select: Tenant or Internal
+  - Select: Resident or Internal
 - Missing
 - Present
 
@@ -262,19 +262,19 @@
 - Missing
 - Present
 
-## Tenant Creator First Name
+## Resident Creator First Name
 - Any Of
   - Enter First Name
 - None Of
   - Enter First Name
 
-## Tenant Creator Last Name
+## Resident Creator Last Name
 - Any Of
   - Enter Last Name
 - None Of
   - Enter Last Name
 
-## Tenant Creator Registered Email
+## Resident Creator Registered Email
 - Any Of
   - Enter Email Address
 - None Of
@@ -705,7 +705,7 @@
 - Not In Range
   - Select: Date
 
-## Last Tenant Meld Chat Date
+## Last Resident Meld Chat Date
 - Missing
 - Present
 - Within Past
@@ -747,7 +747,7 @@
 - None Of
   - Add Keywords
 
-## Last Tenant Meld Chat Message
+## Last Resident Meld Chat Message
 - Any Of
   - Add Keywords
 - None Of
@@ -801,7 +801,7 @@
 - Not In Range
   - Select: Date
 
-## Last Tenant Meld File Upload
+## Last Resident Meld File Upload
 - Missing
 - Present
 - Within Past
