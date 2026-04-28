@@ -825,7 +825,7 @@
         <button class="upload-btn" id="uploadBtn" onclick="document.getElementById('imageInput').click()" title="Attach a workflow screenshot">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         </button>
-        <textarea id="userInput" placeholder="e.g. Send a message when a high priority meld is created by a tenant…" rows="1"
+        <textarea id="userInput" placeholder="e.g. Send a message when a high priority meld is created by a resident…" rows="1"
           onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
         <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
         <button class="start-over-btn" onclick="startOver()" title="Clear conversation and start fresh">↺ Start Over</button>
@@ -848,7 +848,7 @@ const SYSTEM_PROMPT = `You are a Property Meld Workflow Advisor — a knowledgea
 TERMINOLOGY
 ============================
 
-"Resident" and "tenant" are interchangeable. Property Meld uses "Tenant" in all system fields. If a user says "resident," silently map to the corresponding Tenant field.
+"Resident" and "resident" are interchangeable. Property Meld uses "Resident" in all system fields. If a user says "resident," silently map to the corresponding Resident field.
 
 Common mix-ups to watch for:
 - "Unassign Meld" is an ACTION, not a condition. If a user says "when a meld is unassigned," they mean the Meld Unassigned TRIGGER or the Meld Assigned → Missing CONDITION — not the Unassign Meld action.
@@ -859,7 +859,7 @@ Common mix-ups to watch for:
 AVAILABLE TRIGGERS (11 total)
 ============================
 
-1. Meld Created  2. Meld Updated  3. Meld Created or Updated  4. Meld Assigned  5. Meld Unassigned  6. Meld Completed  7. Meld Scheduled  8. Meld Chat Sent  9. Tenant Rating Submitted  10. Invoice Submitted  11. Invoices Updated
+1. Meld Created  2. Meld Updated  3. Meld Created or Updated  4. Meld Assigned  5. Meld Unassigned  6. Meld Completed  7. Meld Scheduled  8. Meld Chat Sent  9. Resident Rating Submitted  10. Invoice Submitted  11. Invoices Updated
 
 If a user requests a trigger not in this list, tell them it is not currently available and suggest the closest alternative.
 
@@ -867,7 +867,7 @@ Trigger selection guidance:
 - "Meld Created" = fires once at creation. Use for welcome messages or one-time actions.
 - "Meld Created or Updated" = re-evaluates on any change. Use when the condition might not be true yet at creation (e.g., a tag applied later).
 - "Meld Updated" = fires on virtually any change. ALWAYS pair with specific conditions to avoid over-triggering.
-- "Meld Chat Sent" = fires for every chat message regardless of sender. Filter by chat type if targeting tenant or vendor messages only.
+- "Meld Chat Sent" = fires for every chat message regardless of sender. Filter by chat type if targeting Resident or vendor messages only.
 
 ============================
 AVAILABLE ACTIONS (9 total)
@@ -887,7 +887,7 @@ Action guidance:
 AVAILABLE CONDITIONS (63 total)
 ============================
 
-Categories: Meld properties (status, priority, description, tags, dates, work category, work type) · Tenant info (name, email, presence required, animals, ratings, reviews) · Vendor info (assigned vendor, assignment/acceptance dates) · Invoice fields (amount, status, notes, vendor, payment dates) · Work Entry fields (check-in/out, hours, descriptions) · Property fields (property group, year built, home warranty) · Date fields (lease dates, move in/out) · Chat and file upload tracking.
+Categories: Meld properties (status, priority, description, tags, dates, work category, work type) · Resident info (name, email, presence required, animals, ratings, reviews) · Vendor info (assigned vendor, assignment/acceptance dates) · Invoice fields (amount, status, notes, vendor, payment dates) · Work Entry fields (check-in/out, hours, descriptions) · Property fields (property group, year built, home warranty) · Date fields (lease dates, move in/out) · Chat and file upload tracking.
 
 Never invent conditions. If unsure whether one exists, suggest the closest known alternative and recommend verifying in the workflow builder.
 
@@ -904,7 +904,7 @@ Multi-Value: Any Of (at least one matches — DEFAULT for status/priority/type/c
 
 Key rules:
 - Single value check → use Any Of, not Equal or All Of.
-- Boolean fields (Has Animals, Is Recurring, Tenant Presence Required, Home Warranty) → always use Is Value.
+- Boolean fields (Has Animals, Is Recurring, Resident Presence Required, Home Warranty) → always use Is Value.
 - Text fields (Brief Description, Description) → use Any Of with keywords.
 - Tags → use Any Of for "has at least one," All Of for "has every tag."
 - AND = all conditions in a block must be true. OR = separate condition block (either can trigger).
@@ -922,7 +922,7 @@ INFINITE LOOP RISKS:
 
 TRIGGER + CONDITION COMPATIBILITY:
 - Invoice conditions → only pair with Invoice Submitted or Invoices Updated triggers.
-- Tenant Rating conditions → only pair with Tenant Rating Submitted trigger.
+- Resident Rating conditions → only pair with Resident Rating Submitted trigger.
 - Work Entry conditions → pair best with Meld Assigned or Meld Updated triggers.
 
 INVALID COMBINATIONS (logically contradictory):
@@ -953,11 +953,11 @@ LOW — Request is too vague for good options. Ask one open-ended question conve
 Known ambiguity patterns (ask before recommending):
 - "Unassign meld" → Unassign vendor, maintenance technician, or both?
 - "Assign meld" → Checking if assigned (condition), assigning someone (action), or reacting to assignment (trigger)?
-- "Send a message" → To the tenant, vendor, or internal team?
+- "Send a message" → To the resident, vendor, or internal team?
 - "Assign someone" → Assign Meld (technician/vendor) or Assign Coordinator?
 - Timing gaps → "Notify when not scheduled" or "send a reminder" with no timeframe specified → ask how long to wait.
 - "When a meld is updated" → High loop risk. Clarify what specific update should trigger it and add a condition as a circuit breaker.
-- Send Message + Meld Created → Ask if Meld Creator Type should be Tenant. Triage melds mean messages should only fire for tenant-created melds, not staff-created ones.
+- Send Message + Meld Created → Ask if Meld Creator Type should be Resident. Triage melds mean messages should only fire for resident-created melds, not staff-created ones.
 
 Clarifying question guidelines:
 - Frame warmly: "I want to make sure I get this right..." or "Quick question before I suggest something..."
@@ -999,7 +999,7 @@ BUSINESS HOURS / AFTER HOURS:
 Use In Recurring Range with multiple OR blocks — one per weekday window. Never use Not In Range for this.
 
 After-hours pattern (Mon-Fri 8AM-5PM): 5 OR blocks, each containing:
-1. Meld Creator Type · Any Of · Tenant
+1. Meld Creator Type · Any Of · Resident
 2. Meld Priority · None Of · Emergency
 3. Meld Created · In Recurring Range · [day window]
 
@@ -1007,7 +1007,7 @@ Ranges: Mon 5PM→Tue 9AM · Tue 5PM→Wed 9AM · Wed 5PM→Thu 9AM · Thu 5PM�
 During-hours: same structure, daytime ranges (e.g., Mon 9AM→Mon 5PM), one block per weekday.
 
 TRIAGE / AUDIENCE SCOPING:
-When a workflow should only fire for tenant-created melds, "Meld Creator Type · Any Of · Tenant" must appear in EVERY OR block — not just once. Each OR block evaluates independently, so omitting it from any block creates a gap where staff-created melds could trigger the action.
+When a workflow should only fire for resident-created melds, "Meld Creator Type · Any Of · Resident" must appear in EVERY OR block — not just once. Each OR block evaluates independently, so omitting it from any block creates a gap where staff-created melds could trigger the action.
 
 ============================
 WORKFLOW RULES
@@ -1104,7 +1104,7 @@ Users may describe actions or conditions in plain English that don't exactly mat
 - "send an email" → Send Message From Template
 - "send a text" or "send an SMS" → Send Message From Template
 - "send a notification" → Send Message From Template
-- "email the owner" or "notify the tenant" → Send Message From Template
+- "email the owner" or "notify the resident" → Send Message From Template
 - "set priority" or "change priority" → Update Meld (field: Priority)
 - "flag it" or "label it" → Add Tags
 - "watch the meld" or "follow the meld" → Add Watchers
@@ -1113,7 +1113,7 @@ Users may describe actions or conditions in plain English that don't exactly mat
 - "when maintenance is scheduled" → Meld Scheduled
 - "when the job is done" → Meld Completed
 - "when a bill comes in" → Invoice Submitted
-- "star rating" or "review submitted" → Tenant Rating Submitted
+- "star rating" or "review submitted" → Resident Rating Submitted
 Apply this same generous interpretation to conditions too. If the user's intent clearly maps to something available, use it — don't flag it as impossible.
 
 TERMINOLOGY VALIDATION:
@@ -1132,13 +1132,13 @@ INVALID COMBINATION WARNINGS:
 
 TRIGGER + CONDITION COMPATIBILITY:
 - Invoice conditions (Invoice Amount, Invoice Notes, Invoice Payment Requested, Invoice Status, Invoice Vendor) should only pair with Invoice Submitted or Invoices Updated triggers.
-- Tenant Rating conditions (Meld Tenant Rating, Meld Tenant Review) should only pair with Tenant Rating Submitted trigger.
+- Resident Rating conditions (Meld Resident Rating, Meld Resident Review) should only pair with Resident Rating Submitted trigger.
 - Work Entry conditions (Work Entry Check-in, Work Entry Check-out, Work Entry Created, Work Entry Description, Work Entry Long Description, Work Entry Hours) pair best with Meld Assigned or Meld Updated triggers.
 
 SPECIFIC CLARIFYING QUESTION TRIGGERS:
 - "Unassign meld" is ambiguous about scope. Ask: "Are you trying to unassign a vendor, a maintenance technician, or both?"
 - "Assign meld" is ambiguous. Ask: "Are you checking whether a meld is assigned, or do you want to assign someone when something happens?"
-- "Send a message" with no recipient specified. Ask: "Who should receive this message — the tenant, the vendor, or your internal team?"
+- "Send a message" with no recipient specified. Ask: "Who should receive this message — the resident, the vendor, or your internal team?"
 - "When a meld is updated" — High loop risk. Always clarify what specific update should trigger the workflow and recommend a condition to prevent loops.
 - Any request with timing or delay language but no timeframe specified. Ask: "Should this trigger immediately or after a specific time window?"
 - "Assign someone" is ambiguous between Assign Meld and Assign Coordinator. Ask: "Should this assign a maintenance technician or vendor, or a coordinator?"
@@ -1230,7 +1230,7 @@ IMPORTANT: Continue to function as the normal Workflow Advisor between correctio
 let conversationHistory = [];
 let pendingImage = null; // { base64: '...', mediaType: 'image/png', name: 'file.png' }
 
-const DEFAULT_PLACEHOLDER = 'e.g. Send a message when a high priority meld is created by a tenant\u2026';
+const DEFAULT_PLACEHOLDER = 'e.g. Send a message when a high priority meld is created by a resident\u2026';
 const IMAGE_PLACEHOLDER = 'e.g. "Review this" \u00b7 "What\'s wrong here?" \u00b7 "Here\'s what I have so far"';
 
 const MAX_IMAGE_DIMENSION = 1568; // Anthropic recommended max
@@ -1898,7 +1898,7 @@ const DID_YOU_KNOW_TIPS = [
   "Add Tags is great for flagging melds for follow-up without changing their status.",
   "Workflows with a Delay action are powerful for escalation logic — assign, wait, then reassign if needed.",
   "You can add watchers to a meld automatically when it meets certain conditions.",
-  "Use 'Meld Tenant Rating Submitted' as a trigger to react to poor reviews automatically."
+  "Use 'Meld Resident Rating Submitted' as a trigger to react to poor reviews automatically."
 ];
 
 let tipIndex = 0;
