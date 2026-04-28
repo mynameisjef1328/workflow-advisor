@@ -24,8 +24,8 @@ The workorder (Meld) is scheduled
 ## Meld Chat Sent
 A chat was sent on the workorder (Meld)
 
-## Tenant Rating Submitted
-Tenant left a rating on the work done
+## Resident Rating Submitted
+Resident left a rating on the work done
 
 ## Invoice Submitted
 Vendor submits an invoice
