@@ -13,10 +13,10 @@ These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). W
   - **If technician:** Use technician-specific conditions (Assigned Internal Maintenance, Internal Maintenance Assignment Date)
   - **If both:** Build separate condition blocks for each assignment type
 
-  - **Meld Created trigger with tenant-directed actions without creator type specified** — When a workflow request involves the Meld Created trigger with actions that primarily target or affect tenant interactions (Send Message From Template, priority escalation based on keywords, status changes based on description content), ask whether the condition Meld Creator Type = Tenant should be applied.
-  - **Why this matters:** Triage melds and tenant-directed automations are typically intended for tenant-created melds. Without creator type filtering, these workflows also fire on melds created internally by staff, where the automation may not apply or could create confusion.
-  - **Suggested clarifying question:** "Should this only happen when the meld is created by a tenant/resident? Many teams add this filter to avoid triggering on melds created internally by staff."
-  - **If yes:** Add condition → Meld Creator Type · Any Of · Tenant
+  - **Meld Created trigger with resident-directed actions without creator type specified** — When a workflow request involves the Meld Created trigger with actions that primarily target or affect resident interactions (Send Message From Template, priority escalation based on keywords, status changes based on description content), ask whether the condition Meld Creator Type = Resident should be applied.
+  - **Why this matters:** Triage melds and resident-directed automations are typically intended for resident-created melds. Without creator type filtering, these workflows also fire on melds created internally by staff, where the automation may not apply or could create confusion.
+  - **Suggested clarifying question:** "Should this only happen when the meld is created by a resident/resident? Many teams add this filter to avoid triggering on melds created internally by staff."
+  - **If yes:** Add condition → Meld Creator Type · Any Of · Resident
   - **If no:** Proceed without the creator type condition, but note that it will apply to all meld creators
 
 - **"Outside business hours" recurring range pattern** — When users request workflows for "outside business hours" or "after hours", use "In Recurring Range" blocks that cover the gaps between business days, not the business hours themselves.
@@ -29,10 +29,10 @@ These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). W
   - **Recommended pattern:** Last Vendor Meld File Upload · Before Past · 1 day (for post-completion photo requests)
   - **Avoid:** Using "Missing" for post-completion workflows where some uploads may have already occurred
 
-- **"Request information from tenant/resident for specific work categories"** — When a workflow involves Send Message From Template triggered by Meld Created for specific work categories (like appliances, HVAC, etc.), automatically include Meld Creator Type = Tenant condition without asking.
-  - **Why this matters:** Requests for model numbers, serial numbers, troubleshooting steps, or other tenant-provided information only make sense when the meld was created by a tenant. Without this condition, the message also fires on melds created by staff, where the request doesn't apply.
-  - **Auto-include condition:** Meld Creator Type · Any Of · Tenant
-  - **Note in explanation:** Mention that this filters to tenant-created melds since staff wouldn't need to provide this information
+- **"Request information from resident/resident for specific work categories"** — When a workflow involves Send Message From Template triggered by Meld Created for specific work categories (like appliances, HVAC, etc.), automatically include Meld Creator Type = Resident condition without asking.
+  - **Why this matters:** Requests for model numbers, serial numbers, troubleshooting steps, or other resident-provided information only make sense when the meld was created by a resident. Without this condition, the message also fires on melds created by staff, where the request doesn't apply.
+  - **Auto-include condition:** Meld Creator Type · Any Of · Resident
+  - **Note in explanation:** Mention that this filters to resident-created melds since staff wouldn't need to provide this information
 
 - **"Tag/action after time period with conditions"** — When a user requests adding tags or taking actions on melds that are "older than X days" with additional conditions, clarify whether they want to check existing old melds or wait X days after creation to check conditions.
   - **Why this matters:** "Older than 14 days" could mean either filtering existing melds by creation date (using date conditions) or waiting 14 days after creation to evaluate current conditions (using Delay action). The Delay approach is more common for workflows that monitor meld progress over time.
@@ -64,17 +64,17 @@ These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). W
   - **If conditional:** Add appropriate condition blocks before the Assign Meld action
   - **If unconditional:** Proceed with the assignment but note that all melds will be assigned the same way
 
-- **Send Message From Template + Meld Creator Type** — When a workflow request involves the **Send Message From Template** action triggered by **Meld Created** or **Meld Created or Updated**, ask whether the condition **Meld Creator Type = Tenant** should be applied.
-  - **Why this matters:** Triage melds ask tenants to perform minor troubleshooting before a work order proceeds. If the workflow sends a message on meld creation without filtering by creator type, it will also fire on melds created internally by staff — where the triage message doesn't apply.
-  - **Suggested clarifying question:** "Should this message only go out when the meld is created by a tenant? A lot of teams add this condition because of triage melds — without it, the message also fires on melds created by staff."
-  - **If yes:** Add condition → Meld Creator Type · Any Of · Tenant
+- **Send Message From Template + Meld Creator Type** — When a workflow request involves the **Send Message From Template** action triggered by **Meld Created** or **Meld Created or Updated**, ask whether the condition **Meld Creator Type = Resident** should be applied.
+  - **Why this matters:** Triage melds ask residents to perform minor troubleshooting before a work order proceeds. If the workflow sends a message on meld creation without filtering by creator type, it will also fire on melds created internally by staff — where the triage message doesn't apply.
+  - **Suggested clarifying question:** "Should this message only go out when the meld is created by a resident? A lot of teams add this condition because of triage melds — without it, the message also fires on melds created by staff."
+  - **If yes:** Add condition → Meld Creator Type · Any Of · Resident
   - **If no:** Proceed without the condition, but note that the workflow will fire for all creator types
 
 - **"Send a message"** — Ambiguous between:
-  - Sending to the tenant
+  - Sending to the resident
   - Sending to the vendor
   - Sending internally
-  Ask: Who should receive this message — the tenant, the vendor, or your internal team?
+  Ask: Who should receive this message — the resident, the vendor, or your internal team?
 
 - **"Assign someone" / "Assign meld"** — Ambiguous between:
   - Checking if a meld IS assigned (Meld Assigned condition → Present)
@@ -102,11 +102,11 @@ These ambiguity patterns MUST prompt a [CLARIFY] question (MEDIUM CONFIDENCE). W
 
 ## Common Terminology Confusions
 
-- **Tenant vs. Resident terminology** — Users may refer to tenants as "residents" and vice versa. These terms are interchangeable in Property Meld.
-  - **Why this matters:** Property Meld uses "Tenant" in its system fields (e.g., Meld Creator Type · Tenant, Tenant Name, Tenant Email), but many property managers say "resident" in everyday language. If the Advisor doesn't recognize them as synonyms, it may misinterpret the request or ask an unnecessary clarifying question.
-  - **Suggested clarifying question:** None — do not ask. Silently interpret "resident" as "tenant" and proceed. This is a HIGH CONFIDENCE synonym, not an ambiguity.
-  - **If the user says "resident":** Map to the corresponding Tenant field (e.g., "send a message to the resident" → Send Message to Tenant).
-  - **If the user says "tenant":** Use directly as-is.
+- **Resident vs. Resident terminology** — Users may refer to residents as "residents" and vice versa. These terms are interchangeable in Property Meld.
+  - **Why this matters:** Property Meld uses "Resident" in its system fields (e.g., Meld Creator Type · Resident, Resident Name, Resident Email), but many property managers say "resident" in everyday language. If the Advisor doesn't recognize them as synonyms, it may misinterpret the request or ask an unnecessary clarifying question.
+  - **Suggested clarifying question:** None — do not ask. Silently interpret "resident" as "resident" and proceed. This is a HIGH CONFIDENCE synonym, not an ambiguity.
+  - **If the user says "resident":** Map to the corresponding Resident field (e.g., "send a message to the resident" → Send Message to Resident).
+  - **If the user says "Resident":** Use directly as-is.
 
 - "Unassign Meld" is an ACTION not a condition — interpret as Meld Assigned → Missing
   - Example: User says "when Unassign Meld happens" → system would otherwise treat it as a condition check, silently producing wrong logic.
@@ -139,8 +139,8 @@ These workflow combinations are technically possible in the system but will caus
 ## Trigger + Condition Compatibility ⚠️
 - Invoice conditions should only pair with
   Invoice Submitted or Invoices Updated triggers
-- Tenant Rating conditions should only pair with
-  Tenant Rating Submitted trigger
+- Resident Rating conditions should only pair with
+  Resident Rating Submitted trigger
 - Work Entry conditions pair best with
   Meld Assigned or Meld Updated triggers
 
